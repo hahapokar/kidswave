@@ -1,33 +1,37 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KidsWear Designer Portfolio</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>KidsWave | 童装设计师作品集</title>
+    
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/tailwindcss/2.2.19/tailwind.min.js"></script>
+    
+    <link href="https://fonts.loli.net/css2?family=Noto+Serif+SC:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
         body {
-            font-family: 'Inter', 'Noto Serif SC', serif;
+            /* 3. 优化字体栈：优先使用系统自带的无衬线字体，确保加载失败时也不会乱码 */
+            font-family: 'Inter', 'Noto Serif SC', "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", serif;
             background-color: #fafafa;
             color: #1a1a1a;
+            -webkit-font-smoothing: antialiased;
         }
         .serif-font {
-            font-family: 'Noto Serif SC', serif;
+            font-family: 'Noto Serif SC', "Source Han Serif SC", "Songti SC", serif;
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3"
-  }
-}
-</script>
+
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/react/18.2.0/esm/index.js",
+        "react-dom": "https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/react-dom/18.2.0/esm/index.js"
+      }
+    }
+    </script>
 </head>
 <body>
     <div id="root"></div>
-</body>
+    </body>
 </html>
