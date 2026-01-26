@@ -7,6 +7,7 @@ import PriceCalculator from './components/PriceCalculator';
 import WatermarkedImage from './components/WatermarkedImage';
 import ContactPage from './components/ContactPage';
 import CustomizationForm from './components/CustomizationForm';
+import UserAuth from './components/UserAuth';
 
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
@@ -28,6 +29,12 @@ const App: React.FC = () => {
   
   // 移动端菜单状态
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  
+  // 用户登录状态
+  const [showUserAuth, setShowUserAuth] = useState(false);
+  
+  // 专属定制弹窗状态
+  const [showCustomization, setShowCustomization] = useState(false);
 
   // 过滤逻辑
   const filteredItems = useMemo(() => {
@@ -83,7 +90,16 @@ const App: React.FC = () => {
             <p className="text-[10px] tracking-[0.3em] uppercase text-neutral-400">Junior Fashion Portfolio</p>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-12 text-xs font-medium tracking-widest uppercase text-neutral-500">
+          <nav className="hidden md:flex items-center space-x-8 text-xs font-medium tracking-widest uppercase text-neutral-500">
+            <button 
+              onClick={() => setShowCustomization(true)}
+              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg font-bold flex items-center space-x-2 rounded"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              <span>{lang === 'zh' ? '专属定制' : 'Customization'}</span>
+            </button>
             <button 
               onClick={() => setShowContactPage(true)}
               className="hover:text-black transition-colors"
@@ -97,7 +113,7 @@ const App: React.FC = () => {
               {lang === 'zh' ? 'EN' : '中文'}
             </button>
             <button 
-              onClick={() => setShowAdminLogin(true)}
+              onClick={() => setShowUserAuth(true)}
               className="px-5 py-2.5 bg-neutral-900 text-white hover:bg-black transition-all flex items-center space-x-2"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -125,6 +141,18 @@ const App: React.FC = () => {
           <div className="md:hidden bg-white border-t border-gray-100 py-6 px-6 space-y-4">
             <button 
               onClick={() => {
+                setShowCustomization(true);
+                setShowMobileMenu(false);
+              }}
+              className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm uppercase tracking-widest font-bold flex items-center justify-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+              <span>{lang === 'zh' ? '专属定制' : 'Customization'}</span>
+            </button>
+            <button 
+              onClick={() => {
                 setShowContactPage(true);
                 setShowMobileMenu(false);
               }}
@@ -140,7 +168,7 @@ const App: React.FC = () => {
             </button>
             <button 
               onClick={() => {
-                setShowAdminLogin(true);
+                setShowUserAuth(true);
                 setShowMobileMenu(false);
               }}
               className="w-full py-3 bg-neutral-900 text-white text-sm uppercase tracking-widest flex items-center justify-center space-x-2"
@@ -400,6 +428,40 @@ const App: React.FC = () => {
         <ContactPage onClose={() => setShowContactPage(false)} lang={lang} />
       )}
 
+      {/* User Auth Modal */}
+      {showUserAuth && (
+        <UserAuth onClose={() => setShowUserAuth(false)} lang={lang} />
+      )}
+
+      {/* Customization Modal */}
+      {showCustomization && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-6 overflow-y-auto">
+          <div className="relative bg-white w-full max-w-3xl rounded-lg shadow-2xl p-10">
+            <button 
+              onClick={() => setShowCustomization(false)}
+              className="absolute top-6 right-6 p-2 bg-neutral-100 rounded-full hover:bg-neutral-200 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+
+            <div className="space-y-6">
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-bold serif-font">
+                  {lang === 'zh' ? '专属定制服务' : 'Exclusive Customization'}
+                </h2>
+                <p className="text-sm text-neutral-400 uppercase tracking-widest">
+                  {lang === 'zh' ? '为您打造独一无二的设计方案' : 'Create Unique Designs For You'}
+                </p>
+              </div>
+
+              <CustomizationForm lang={lang} />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer className="bg-white border-t border-gray-100 py-24 mt-24">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-16">
@@ -414,12 +476,6 @@ const App: React.FC = () => {
             <div className="space-y-2 text-sm text-neutral-600">
               <p>Business: design@kidswave.studio</p>
               <p>Studio: 广州市</p>
-              <button 
-                onClick={() => setShowAdminLogin(true)}
-                className="text-neutral-300 hover:text-neutral-900 transition-colors text-[10px] uppercase font-bold tracking-widest"
-              >
-                [ 维护者登录入口 ]
-              </button>
             </div>
           </div>
           <div className="space-y-6">
@@ -427,6 +483,12 @@ const App: React.FC = () => {
             <div className="space-y-2 text-sm text-neutral-500">
               <p>© 2026 KIDSWAVE. All Rights Reserved.</p>
               <p className="text-xs">网站受内容完整性保护，未经授权禁止克隆。所有作品源文件托管于加密 R2 服务器。</p>
+              <button 
+                onClick={() => setShowAdminLogin(true)}
+                className="text-neutral-200 hover:text-neutral-400 transition-colors text-[9px] uppercase tracking-widest mt-4"
+              >
+                [ {lang === 'zh' ? '管理者入口' : 'Admin'} ]
+              </button>
             </div>
           </div>
         </div>
