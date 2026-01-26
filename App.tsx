@@ -68,6 +68,15 @@ const App: React.FC = () => {
   }, [selectedCategory, selectedVisibility, portfolioItems]);
 
   const handleCardClick = (item: PortfolioItem) => {
+    // 增加访问计数
+    const updatedItems = portfolioItems.map(p => 
+      p.id === item.id 
+        ? { ...p, viewCount: (p.viewCount || 0) + 1 }
+        : p
+    );
+    setPortfolioItems(updatedItems);
+    localStorage.setItem('portfolioItems', JSON.stringify(updatedItems));
+
     // 半公开作品需要检查密码
     if (item.visibility === Visibility.SEMI_PUBLIC) {
       // 如果该图片已解锁，直接显示
@@ -188,7 +197,7 @@ const App: React.FC = () => {
               onClick={() => setShowContactPage(true)}
               className="hover:text-black transition-colors"
             >
-              Contact
+              {lang === 'zh' ? '联系方式' : 'Contact'}
             </button>
             <button 
               onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
@@ -242,7 +251,7 @@ const App: React.FC = () => {
               }}
               className="w-full text-left py-3 text-sm uppercase tracking-widest hover:text-black transition-colors"
             >
-              Contact
+              {lang === 'zh' ? '联系方式' : 'Contact'}
             </button>
             <button 
               onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}

@@ -35,6 +35,8 @@ export interface PortfolioItem {
   addons: Addon[];
   password?: string; // 半公开图片的访问密码
   assignedUsers?: string[]; // 专属定制图片分配给哪些用户（用户邮箱列表）
+  blurPercentage?: number; // 模糊百分比 (0-100)
+  viewCount?: number; // 访问次数统计
 }
 
 export interface User {

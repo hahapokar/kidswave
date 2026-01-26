@@ -49,7 +49,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         public: '公开作品',
         semiPublic: '半公开作品',
         exclusive: '专属定制',
-        byCategory: '分类统计'
+        byCategory: '分类统计',
+        mostViewed: '访问量排行',
+        viewCount: '访问次数'
       },
       form: {
         title: '作品标题',
@@ -97,7 +99,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         public: 'Public',
         semiPublic: 'Semi-Public',
         exclusive: 'Exclusive',
-        byCategory: 'By Category'
+        byCategory: 'By Category',
+        mostViewed: 'Most Viewed',
+        viewCount: 'Views'
       },
       form: {
         title: 'Title',
@@ -357,6 +361,50 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                         </div>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* 访问量排行 */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h3 className="text-lg font-bold mb-4">{t.stats.mostViewed}</h3>
+                  <div className="space-y-3">
+                    {[...items]
+                      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+                      .slice(0, 10)
+                      .map((item, index) => (
+                        <div key={item.id} className="flex items-center gap-4 p-3 hover:bg-neutral-50 rounded transition-colors">
+                          <div className="text-2xl font-bold text-neutral-300 w-8 text-center">
+                            #{index + 1}
+                          </div>
+                          <div className="w-16 h-16 bg-neutral-100 rounded overflow-hidden flex-shrink-0">
+                            <img
+                              src={item.coverImage}
+                              alt={item.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-neutral-900 truncate">{item.title}</div>
+                            <div className="text-xs text-neutral-500">
+                              {t.categories[item.category]} · {t.visibility[item.visibility]}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-right">
+                            <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <span className="text-lg font-bold text-neutral-900">
+                              {item.viewCount || 0}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    {items.length === 0 && (
+                      <div className="text-center py-8 text-neutral-400 text-sm">
+                        {lang === 'zh' ? '暂无访问数据' : 'No view data yet'}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
