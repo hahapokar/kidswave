@@ -539,8 +539,9 @@ const App: React.FC = () => {
       {/* Image Password Prompt for Semi-Public Items */}
       {showImagePasswordPrompt && selectedItem && (
         <ImagePasswordPrompt
-          item={selectedItem}
-          onClose={() => {
+          itemTitle={selectedItem.title}
+          correctPassword={selectedItem.password || ''}
+          onCancel={() => {
             setShowImagePasswordPrompt(false);
             setSelectedItem(null);
           }}
