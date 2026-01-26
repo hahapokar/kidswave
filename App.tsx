@@ -52,7 +52,7 @@ const App: React.FC = () => {
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // 管理员密码预设为 admin666
-    if (adminPassword === 'admin666') {
+    if (adminPassword === 'wlj666') {
       // 使用正确的 GitHub Pages 路径跳转
       window.location.href = '/kidswave/admin/';
     } else {
@@ -300,7 +300,7 @@ const App: React.FC = () => {
           <div className="space-y-6">
             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Copyright</p>
             <div className="space-y-2 text-sm text-neutral-500">
-              <p>© 2024 KIDSWAVE. All Rights Reserved.</p>
+              <p>© 2026 KIDSWAVE. All Rights Reserved.</p>
               <p className="text-xs">网站受内容完整性保护，未经授权禁止克隆。所有作品源文件托管于加密 R2 服务器。</p>
             </div>
           </div>
