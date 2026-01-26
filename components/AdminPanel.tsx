@@ -178,6 +178,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('handleSubmit called', { formData, editingItem });
+    
     if (!formData.imagePreview && !editingItem) {
       alert(t.messages.selectImage);
       return;
@@ -198,13 +200,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       visibility: formData.visibility,
       basePrice: formData.basePrice,
       description: formData.description,
+      blurPercentage: formData.visibility === Visibility.SEMI_PUBLIC ? formData.blurLevel : 0,
       password: formData.visibility === Visibility.SEMI_PUBLIC ? formData.password : undefined,
       assignedUsers: formData.visibility === Visibility.EXCLUSIVE ? formData.assignedUsers : undefined,
+      viewCount: editingItem?.viewCount || 0,
       addons: editingItem?.addons || [
         { label: '提供 AI 文件', price: 200 },
         { label: '配色方案建议', price: 150 }
       ]
     };
+
+    console.log('New item created:', newItem);
 
     let newItems: PortfolioItem[];
     if (editingItem) {
@@ -213,6 +219,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       newItems = [...items, newItem];
     }
 
+    console.log('Saving items:', newItems);
     saveItems(newItems);
     alert(t.messages.saved);
     resetForm();
@@ -238,7 +245,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       visibility: item.visibility,
       basePrice: item.basePrice,
       description: item.description,
-      blurLevel: 0,
+      blurLevel: item.blurPercentage || 0,
       password: item.password || '',
       assignedUsers: item.assignedUsers || [],
       imageFile: null,
