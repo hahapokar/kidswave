@@ -96,5 +96,5 @@ export default defineConfig({
 
 ## License
 
-© 2024 KIDSWAVE. All Rights Reserved.
+© 2026 KIDSWAVE. All Rights Reserved.
 

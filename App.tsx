@@ -288,7 +288,7 @@ const App: React.FC = () => {
             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Collaboration</p>
             <div className="space-y-2 text-sm text-neutral-600">
               <p>Business: design@kidswave.studio</p>
-              <p>Studio: 杭州市滨江区创意路 88 号</p>
+              <p>Studio: 广州市</p>
               <button 
                 onClick={() => setShowAdminLogin(true)}
                 className="text-neutral-300 hover:text-neutral-900 transition-colors text-[10px] uppercase font-bold tracking-widest"
