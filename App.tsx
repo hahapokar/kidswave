@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { MOCK_PORTFOLIO } from './services/mockData';
-import { Category, Visibility, PortfolioItem } from './types';
+import { Category, Visibility, PortfolioItem, User } from './types';
 import PortfolioCard from './components/PortfolioCard';
 import PriceCalculator from './components/PriceCalculator';
 import WatermarkedImage from './components/WatermarkedImage';
@@ -9,6 +9,8 @@ import ContactPage from './components/ContactPage';
 import CustomizationForm from './components/CustomizationForm';
 import UserAuth from './components/UserAuth';
 import AdminPanel from './components/AdminPanel';
+import ImagePasswordPrompt from './components/ImagePasswordPrompt';
+import UserDashboard from './components/UserDashboard';
 
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
@@ -20,6 +22,10 @@ const App: React.FC = () => {
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [viewerPassword, setViewerPassword] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
+  
+  // 半公开图片密码验证状态
+  const [showImagePasswordPrompt, setShowImagePasswordPrompt] = useState(false);
+  const [imagePasswordUnlocked, setImagePasswordUnlocked] = useState<Set<string>>(new Set());
 
   // 管理员后台进入状态
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -34,6 +40,7 @@ const App: React.FC = () => {
   
   // 用户登录状态
   const [showUserAuth, setShowUserAuth] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   
   // 专属定制弹窗状态
   const [showCustomization, setShowCustomization] = useState(false);
@@ -61,12 +68,39 @@ const App: React.FC = () => {
   }, [selectedCategory, selectedVisibility, portfolioItems]);
 
   const handleCardClick = (item: PortfolioItem) => {
-    if (item.visibility === Visibility.SEMI_PUBLIC && !isUnlocked) {
-      setSelectedItem(item);
-      setShowPasswordPrompt(true);
+    // 半公开作品需要检查密码
+    if (item.visibility === Visibility.SEMI_PUBLIC) {
+      // 如果该图片已解锁，直接显示
+      if (imagePasswordUnlocked.has(item.id)) {
+        setSelectedItem(item);
+      } else {
+        // 显示密码输入框
+        setSelectedItem(item);
+        setShowImagePasswordPrompt(true);
+      }
+    } else if (item.visibility === Visibility.EXCLUSIVE) {
+      // 专属作品需要用户登录且被分配
+      if (currentUser && item.assignedUsers?.includes(currentUser.email)) {
+        setSelectedItem(item);
+      } else {
+        alert(lang === 'zh' 
+          ? '此作品为专属内容，请登录并确认您有访问权限' 
+          : 'This is exclusive content. Please login and verify access.');
+      }
     } else {
+      // 公开作品直接显示
       setSelectedItem(item);
     }
+  };
+
+  const handleImagePasswordSuccess = (itemId: string) => {
+    setImagePasswordUnlocked(prev => new Set(prev).add(itemId));
+    setShowImagePasswordPrompt(false);
+  };
+
+  const handleUserLoginSuccess = (user: User) => {
+    setCurrentUser(user);
+    setShowUserAuth(false);
   };
 
   const handleViewerPasswordSubmit = (e: React.FormEvent) => {
@@ -167,7 +201,7 @@ const App: React.FC = () => {
               className="px-5 py-2.5 bg-neutral-900 text-white hover:bg-black transition-all flex items-center space-x-2"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span>{lang === 'zh' ? '用户登录' : 'Login'}</span>
+              <span>{currentUser ? (lang === 'zh' ? `你好, ${currentUser.name}` : `Hi, ${currentUser.name}`) : (lang === 'zh' ? '用户登录' : 'Login')}</span>
             </button>
           </nav>
 
@@ -226,62 +260,69 @@ const App: React.FC = () => {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <span>{lang === 'zh' ? '用户登录' : 'Login'}</span>
+              <span>{currentUser ? (lang === 'zh' ? `你好, ${currentUser.name}` : `Hi, ${currentUser.name}`) : (lang === 'zh' ? '用户登录' : 'Login')}</span>
             </button>
           </div>
         )}
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
-        {/* Filters */}
-        <section className="mb-16 space-y-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-8">
-            <div className="space-y-4">
-              <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">
-                {lang === 'zh' ? 'Categories (品类筛选)' : 'Product Categories'}
-              </p>
-              <div className="flex flex-wrap gap-4">
-                {['ALL', ...Object.values(Category)].map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat as any)}
-                    className={`px-6 py-2 text-xs tracking-widest uppercase transition-all border ${
-                      selectedCategory === cat ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
-                    }`}
-                  >
-                    {cat === 'ALL' ? (lang === 'zh' ? '全部' : 'All') : cat}
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* 如果用户已登录，显示用户专属面板 */}
+        {currentUser ? (
+          <UserDashboard user={currentUser} lang={lang} onLogout={() => setCurrentUser(null)} />
+        ) : (
+          <>
+            {/* Filters */}
+            <section className="mb-16 space-y-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-8">
+                <div className="space-y-4">
+                  <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">
+                    {lang === 'zh' ? 'Categories (品类筛选)' : 'Product Categories'}
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    {['ALL', ...Object.values(Category)].map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedCategory(cat as any)}
+                        className={`px-6 py-2 text-xs tracking-widest uppercase transition-all border ${
+                          selectedCategory === cat ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
+                        }`}
+                      >
+                        {cat === 'ALL' ? (lang === 'zh' ? '全部' : 'All') : cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-            <div className="space-y-4">
-              <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">
-                {lang === 'zh' ? 'Visibility (授权级别)' : 'Visibility Level'}
-              </p>
-              <div className="flex flex-wrap gap-4">
-                {[Visibility.PUBLIC, Visibility.SEMI_PUBLIC].map(vis => (
-                  <button
-                    key={vis}
-                    onClick={() => setSelectedVisibility(vis as any)}
-                    className={`px-6 py-2 text-xs tracking-widest uppercase transition-all border ${
-                      selectedVisibility === vis ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
-                    }`}
-                  >
-                    {vis}
-                  </button>
-                ))}
+                <div className="space-y-4">
+                  <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">
+                    {lang === 'zh' ? 'Visibility (授权级别)' : 'Visibility Level'}
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    {[Visibility.PUBLIC, Visibility.SEMI_PUBLIC].map(vis => (
+                      <button
+                        key={vis}
+                        onClick={() => setSelectedVisibility(vis as any)}
+                        className={`px-6 py-2 text-xs tracking-widest uppercase transition-all border ${
+                          selectedVisibility === vis ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
+                        }`}
+                      >
+                        {vis}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </section>
+            </section>
 
-        {/* Grid */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
-          {filteredItems.map(item => (
-            <PortfolioCard key={item.id} item={item} onClick={handleCardClick} />
-          ))}
-        </section>
+            {/* Grid */}
+            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
+              {filteredItems.map(item => (
+                <PortfolioCard key={item.id} item={item} onClick={handleCardClick} />
+              ))}
+            </section>
+          </>
+        )}
       </main>
 
       {/* Detail Overlay */}
@@ -480,7 +521,24 @@ const App: React.FC = () => {
 
       {/* User Auth Modal */}
       {showUserAuth && (
-        <UserAuth onClose={() => setShowUserAuth(false)} lang={lang} />
+        <UserAuth 
+          onClose={() => setShowUserAuth(false)} 
+          onLoginSuccess={handleUserLoginSuccess}
+          lang={lang} 
+        />
+      )}
+
+      {/* Image Password Prompt for Semi-Public Items */}
+      {showImagePasswordPrompt && selectedItem && (
+        <ImagePasswordPrompt
+          item={selectedItem}
+          onClose={() => {
+            setShowImagePasswordPrompt(false);
+            setSelectedItem(null);
+          }}
+          onSuccess={() => handleImagePasswordSuccess(selectedItem.id)}
+          lang={lang}
+        />
       )}
 
       {/* Customization Modal */}
@@ -506,7 +564,7 @@ const App: React.FC = () => {
                 </p>
               </div>
 
-              <CustomizationForm lang={lang} />
+              <CustomizationForm lang={lang} onClose={() => setShowCustomization(false)} />
             </div>
           </div>
         </div>

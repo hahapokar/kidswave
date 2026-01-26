@@ -11,6 +11,15 @@ interface PriceCalculatorProps {
 const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice, addons, lang }) => {
   const [selectedAddons, setSelectedAddons] = useState<Set<number>>(new Set());
 
+  // 增值服务选项
+  const valueAddedServices = [
+    { label: lang === 'zh' ? '工艺版单' : 'Tech Pack', price: 100 },
+    { label: lang === 'zh' ? '齐色建议' : 'Color Palette', price: 50 },
+    { label: lang === 'zh' ? '面辅料建议与供应商信息' : 'Fabric & Supplier Info', price: 100 },
+    { label: lang === 'zh' ? '小幅度改图' : 'Minor Revisions', price: 50, perTime: true },
+    { label: lang === 'zh' ? '协助批复样板' : 'Sample Approval Support', price: 50, perTime: true }
+  ];
+
   const content = {
     zh: {
       title: '价格估算工具',
@@ -35,7 +44,8 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice, addons, la
     setSelectedAddons(next);
   };
 
-  const total = basePrice + Array.from(selectedAddons).reduce((acc, idx) => acc + addons[idx].price, 0);
+  const addonTotal = Array.from(selectedAddons).reduce((acc, idx) => acc + addons[idx].price, 0);
+  const total = basePrice + addonTotal;
 
   return (
     <div className="bg-white border border-gray-100 p-8 rounded-lg shadow-sm">
@@ -59,6 +69,31 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice, addons, la
               <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{addon.label}</span>
             </div>
             <span className="text-sm font-medium text-gray-500">+ ¥{addon.price}</span>
+          </label>
+        ))}
+
+        {/* 增值服务分隔线 */}
+        <div className="border-t border-amber-200 pt-4 mt-4">
+          <p className="text-xs font-bold uppercase tracking-widest text-amber-800 mb-3">
+            {lang === 'zh' ? '增值服务' : 'Value-Added Services'}
+          </p>
+        </div>
+
+        {/* 增值服务选项 */}
+        {valueAddedServices.map((service, idx) => (
+          <label key={`service-${idx}`} className="flex items-center justify-between group cursor-pointer bg-amber-50/50 px-3 py-2 rounded">
+            <div className="flex items-center space-x-3">
+              <input 
+                type="checkbox" 
+                className="w-4 h-4 rounded border-amber-300 text-amber-600 focus:ring-amber-500"
+              />
+              <span className="text-sm text-amber-900 group-hover:text-amber-950 transition-colors font-medium">
+                {service.label}{service.perTime ? ` (¥${service.price}/${lang === 'zh' ? '次' : 'time'})` : ''}
+              </span>
+            </div>
+            {!service.perTime && (
+              <span className="text-sm font-bold text-amber-800">+ ¥{service.price}</span>
+            )}
           </label>
         ))}
       </div>

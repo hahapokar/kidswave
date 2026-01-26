@@ -19,6 +19,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
     basePrice: 0,
     description: '',
     blurLevel: 0,
+    password: '',
+    assignedUsers: [] as string[],
     imageFile: null as File | null,
     imagePreview: ''
   });
@@ -59,6 +61,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         uploadImage: '上传图片',
         blurLevel: '模糊度',
         blurNote: '半公开作品将应用此模糊度',
+        password: '访问密码',
+        passwordNote: '半公开图片需要设置密码',
+        assignUsers: '分配用户',
+        assignUsersNote: '输入用户邮箱，多个邮箱用逗号分隔',
         save: '保存',
         cancel: '取消',
         delete: '删除',
@@ -103,6 +109,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         uploadImage: 'Upload Image',
         blurLevel: 'Blur Level',
         blurNote: 'Semi-public items will apply this blur',
+        password: 'Access Password',
+        passwordNote: 'Required for semi-public images',
+        assignUsers: 'Assign Users',
+        assignUsersNote: 'Enter user emails, separated by commas',
         save: 'Save',
         cancel: 'Cancel',
         delete: 'Delete',
@@ -169,6 +179,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       return;
     }
 
+    // 验证半公开图片必须有密码
+    if (formData.visibility === Visibility.SEMI_PUBLIC && !formData.password) {
+      alert(lang === 'zh' ? '半公开作品必须设置密码' : 'Semi-public items require a password');
+      return;
+    }
+
     const newItem: PortfolioItem = {
       id: editingItem?.id || `item-${Date.now()}`,
       title: formData.title,
@@ -178,6 +194,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       visibility: formData.visibility,
       basePrice: formData.basePrice,
       description: formData.description,
+      password: formData.visibility === Visibility.SEMI_PUBLIC ? formData.password : undefined,
+      assignedUsers: formData.visibility === Visibility.EXCLUSIVE ? formData.assignedUsers : undefined,
       addons: editingItem?.addons || [
         { label: '提供 AI 文件', price: 200 },
         { label: '配色方案建议', price: 150 }
@@ -217,6 +235,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       basePrice: item.basePrice,
       description: item.description,
       blurLevel: 0,
+      password: item.password || '',
+      assignedUsers: item.assignedUsers || [],
       imageFile: null,
       imagePreview: item.coverImage
     });
@@ -233,6 +253,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       basePrice: 0,
       description: '',
       blurLevel: 0,
+      password: '',
+      assignedUsers: [],
       imageFile: null,
       imagePreview: ''
     });
@@ -524,19 +546,56 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
 
                 {/* 模糊度设置 */}
                 {formData.visibility === Visibility.SEMI_PUBLIC && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        {t.form.blurLevel}: {formData.blurLevel}%
+                      </label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={formData.blurLevel}
+                        onChange={(e) => setFormData({ ...formData, blurLevel: Number(e.target.value) })}
+                        className="w-full"
+                      />
+                      <p className="text-xs text-neutral-500 mt-2">{t.form.blurNote}</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">
+                        {t.form.password} *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder={lang === 'zh' ? '设置访问密码' : 'Set access password'}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none"
+                        required
+                      />
+                      <p className="text-xs text-neutral-500 mt-2">{t.form.passwordNote}</p>
+                    </div>
+                  </>
+                )}
+
+                {/* 专属定制用户分配 */}
+                {formData.visibility === Visibility.EXCLUSIVE && (
                   <div>
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
-                      {t.form.blurLevel}: {formData.blurLevel}%
+                      {t.form.assignUsers}
                     </label>
                     <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={formData.blurLevel}
-                      onChange={(e) => setFormData({ ...formData, blurLevel: Number(e.target.value) })}
-                      className="w-full"
+                      type="text"
+                      value={formData.assignedUsers.join(', ')}
+                      onChange={(e) => setFormData({ 
+                        ...formData, 
+                        assignedUsers: e.target.value.split(',').map(email => email.trim()).filter(email => email) 
+                      })}
+                      placeholder={lang === 'zh' ? '例如：user1@email.com, user2@email.com' : 'e.g., user1@email.com, user2@email.com'}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none"
                     />
-                    <p className="text-xs text-neutral-500 mt-2">{t.form.blurNote}</p>
+                    <p className="text-xs text-neutral-500 mt-2">{t.form.assignUsersNote}</p>
                   </div>
                 )}
 

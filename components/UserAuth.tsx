@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { User } from '../types';
 
 interface UserAuthProps {
   onClose: () => void;
   lang: 'zh' | 'en';
+  onLoginSuccess: (user: User) => void;
 }
 
-const UserAuth: React.FC<UserAuthProps> = ({ onClose, lang }) => {
+const UserAuth: React.FC<UserAuthProps> = ({ onClose, lang, onLoginSuccess }) => {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [formData, setFormData] = useState({
+    name: '',
     phone: '',
     email: '',
     wechat: '',
@@ -47,13 +50,47 @@ const UserAuth: React.FC<UserAuthProps> = ({ onClose, lang }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (mode === 'login') {
-      alert(lang === 'zh' ? '登录成功！' : 'Login successful!');
+      // 从 localStorage 获取用户数据
+      const users: User[] = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find(u => u.email === formData.email && u.password === formData.password);
+      
+      if (user) {
+        alert(lang === 'zh' ? '登录成功！' : 'Login successful!');
+        onLoginSuccess(user);
+        onClose();
+      } else {
+        alert(lang === 'zh' ? '邮箱或密码错误' : 'Invalid email or password');
+      }
     } else {
-      alert(lang === 'zh' ? '注册成功！' : 'Registration successful!');
+      // 注册新用户
+      const users: User[] = JSON.parse(localStorage.getItem('users') || '[]');
+      
+      // 检查邮箱是否已存在
+      if (users.some(u => u.email === formData.email)) {
+        alert(lang === 'zh' ? '该邮箱已注册' : 'Email already registered');
+        return;
+      }
+      
+      const newUser: User = {
+        id: `user-${Date.now()}`,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        wechat: formData.wechat,
+        password: formData.password,
+        createdAt: new Date().toISOString(),
+        assignedItems: []
+      };
+      
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      alert(lang === 'zh' ? '注册成功！请登录' : 'Registration successful! Please login');
       setMode('login');
+      setFormData({ name: '', phone: '', email: '', wechat: '', password: '' });
     }
-    console.log('User auth data:', { mode, formData });
   };
 
   return (
@@ -84,6 +121,20 @@ const UserAuth: React.FC<UserAuthProps> = ({ onClose, lang }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'register' && (
               <>
+                <div>
+                  <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">
+                    {lang === 'zh' ? '姓名' : 'Name'}
+                  </label>
+                  <input 
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder={lang === 'zh' ? '请输入您的姓名' : 'Enter your name'}
+                    className="w-full px-4 py-3 border border-gray-200 rounded focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 outline-none"
+                    required
+                  />
+                </div>
+
                 <div>
                   <label className="block text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2">
                     {t.phone}

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 
 interface CustomizationFormProps {
   lang: 'zh' | 'en';
+  onClose?: () => void;
 }
 
-const CustomizationForm: React.FC<CustomizationFormProps> = ({ lang }) => {
+const CustomizationForm: React.FC<CustomizationFormProps> = ({ lang, onClose }) => {
   const [formData, setFormData] = useState({
     brandName: '',
     category: '',
@@ -28,6 +29,7 @@ const CustomizationForm: React.FC<CustomizationFormProps> = ({ lang }) => {
       deadline: '期望交付时间',
       requirements: '其他需求说明',
       submit: '提交定制需求',
+      close: '关闭',
       categories: ['外服', '家居服', '服饰', '其他'],
       ageGroups: ['婴童(0-3岁)', '小童(3-6岁)', '中童(6-12岁)'],
       styles: ['简约现代', '复古经典', '运动休闲', '甜美可爱', '个性潮流']
@@ -43,6 +45,7 @@ const CustomizationForm: React.FC<CustomizationFormProps> = ({ lang }) => {
       deadline: 'Expected Delivery',
       requirements: 'Additional Requirements',
       submit: 'Submit Request',
+      close: 'Close',
       categories: ['Outerwear', 'Loungewear', 'Accessories', 'Other'],
       ageGroups: ['Infant (0-3)', 'Kids (3-6)', 'Juniors (6-12)'],
       styles: ['Minimalist Modern', 'Vintage Classic', 'Sporty Casual', 'Sweet & Cute', 'Trendy']
@@ -180,12 +183,23 @@ const CustomizationForm: React.FC<CustomizationFormProps> = ({ lang }) => {
           />
         </div>
 
-        <button 
-          type="submit"
-          className="w-full py-4 bg-neutral-900 text-white hover:bg-black transition-all text-xs tracking-widest uppercase font-bold"
-        >
-          {t.submit}
-        </button>
+        <div className="flex gap-4">
+          <button 
+            type="submit"
+            className="flex-1 py-4 bg-neutral-900 text-white hover:bg-black transition-all text-xs tracking-widest uppercase font-bold"
+          >
+            {t.submit}
+          </button>
+          {onClose && (
+            <button 
+              type="button"
+              onClick={onClose}
+              className="px-8 py-4 border border-gray-300 hover:bg-gray-50 transition-all text-xs tracking-widest uppercase font-bold"
+            >
+              {t.close}
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );
