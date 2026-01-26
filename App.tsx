@@ -50,12 +50,27 @@ const App: React.FC = () => {
 
   // 加载作品数据
   useEffect(() => {
-    const savedItems = localStorage.getItem('portfolioItems');
-    if (savedItems) {
-      setPortfolioItems(JSON.parse(savedItems));
-    } else {
-      setPortfolioItems(MOCK_PORTFOLIO);
-    }
+    const loadItems = () => {
+      const savedItems = localStorage.getItem('portfolioItems');
+      if (savedItems) {
+        setPortfolioItems(JSON.parse(savedItems));
+      } else {
+        setPortfolioItems(MOCK_PORTFOLIO);
+      }
+    };
+    
+    loadItems();
+    
+    // 监听 storage 事件（当其他标签页修改 localStorage 时触发）
+    window.addEventListener('storage', loadItems);
+    
+    // 监听自定义事件（当本页面管理员修改数据时触发）
+    window.addEventListener('portfolioUpdated', loadItems);
+    
+    return () => {
+      window.removeEventListener('storage', loadItems);
+      window.removeEventListener('portfolioUpdated', loadItems);
+    };
   }, []);
 
   // 过滤逻辑

@@ -156,6 +156,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   const saveItems = (newItems: PortfolioItem[]) => {
     localStorage.setItem('portfolioItems', JSON.stringify(newItems));
     setItems(newItems);
+    // 触发自定义事件通知 App.tsx 重新加载数据
+    window.dispatchEvent(new Event('portfolioUpdated'));
   };
 
   // 处理图片上传
