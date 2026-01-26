@@ -26,6 +26,7 @@ export interface PortfolioItem {
   id: string;
   title: string;
   coverImage: string;
+  originalImage?: string; // 半公开图片的原图（未模糊版本）
   highResLink?: string;
   category: Category;
   ageGroup: AgeGroup;

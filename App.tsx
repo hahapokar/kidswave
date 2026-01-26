@@ -14,7 +14,7 @@ import UserDashboard from './components/UserDashboard';
 
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
-  const [selectedVisibility, setSelectedVisibility] = useState<Visibility | 'ALL'>('PUBLIC');
+  const [selectedVisibility, setSelectedVisibility] = useState<Visibility | 'ALL'>(Visibility.PUBLIC);
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const [lang, setLang] = useState<'zh' | 'en'>('zh');
   
@@ -385,38 +385,6 @@ const App: React.FC = () => {
 
                 <PriceCalculator basePrice={selectedItem.basePrice} addons={selectedItem.addons} lang={lang} />
 
-                {/* 增值服务报价 */}
-                <div className="bg-amber-50 border-2 border-amber-200 p-6 rounded-lg">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-amber-900 mb-4 flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    {lang === 'zh' ? '增值服务报价' : 'Value-Added Services'}
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-neutral-700">{lang === 'zh' ? '工艺版单' : 'Tech Pack'}</span>
-                      <span className="font-bold text-amber-900">+¥100</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-neutral-700">{lang === 'zh' ? '齐色建议' : 'Color Palette'}</span>
-                      <span className="font-bold text-amber-900">+¥50</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-neutral-700">{lang === 'zh' ? '面辅料建议与供应商信息' : 'Fabric & Supplier Info'}</span>
-                      <span className="font-bold text-amber-900">+¥100</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-neutral-700">{lang === 'zh' ? '小幅度改图' : 'Minor Revisions'}</span>
-                      <span className="font-bold text-amber-900">¥50/{lang === 'zh' ? '次' : 'time'}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-neutral-700">{lang === 'zh' ? '协助批复样板' : 'Sample Approval Support'}</span>
-                      <span className="font-bold text-amber-900">¥50/{lang === 'zh' ? '次' : 'time'}</span>
-                    </div>
-                  </div>
-                </div>
-
                 {selectedItem.visibility === Visibility.EXCLUSIVE ? (
                   <>
                     <div className="p-8 bg-neutral-900 text-white rounded-lg text-center space-y-4">
@@ -445,6 +413,20 @@ const App: React.FC = () => {
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       <span>{lang === 'zh' ? '下载高清方案 (DOWNLOAD HI-RES)' : 'Download Hi-Res'}</span>
                     </button>
+
+                    {/* 如果是半公开且已解锁，显示下载原图按钮 */}
+                    {selectedItem.visibility === Visibility.SEMI_PUBLIC && 
+                     imagePasswordUnlocked.has(selectedItem.id) && 
+                     selectedItem.originalImage && (
+                      <a
+                        href={selectedItem.originalImage}
+                        download={`${selectedItem.title}-original.jpg`}
+                        className="block w-full py-4 bg-amber-600 text-white hover:bg-amber-700 transition-all text-xs tracking-widest uppercase font-bold text-center"
+                      >
+                        {lang === 'zh' ? '下载原图 (DOWNLOAD ORIGINAL)' : 'Download Original'}
+                      </a>
+                    )}
+
                     <p className="text-[10px] text-center text-neutral-400 uppercase tracking-widest">
                       STORAGE SOURCE: SECURE R2 BUCKET
                     </p>

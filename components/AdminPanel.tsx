@@ -197,6 +197,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       id: editingItem?.id || `item-${Date.now()}`,
       title: formData.title,
       coverImage: formData.imagePreview || editingItem?.coverImage || '',
+      originalImage: formData.visibility === Visibility.SEMI_PUBLIC && formData.blurLevel > 0 
+        ? (formData.imagePreview || editingItem?.coverImage) 
+        : undefined,
       category: formData.category,
       ageGroup: formData.ageGroup,
       visibility: formData.visibility,
