@@ -1,0 +1,50 @@
+
+backend:
+  name: github
+  repo: your-username/your-repo-name # 记得替换为您真实的 repo 名
+  branch: main
+  base_url: https://api.github.com # 明确指定后端 API 基准
+
+# 媒体配置：相对于网站根目录
+media_folder: "public/uploads"
+public_folder: "uploads" # 移除前置斜杠，增加二级目录兼容性
+
+collections:
+  - name: "portfolio"
+    label: "作品集管理"
+    folder: "content/portfolio"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "标题", name: "title", widget: "string" }
+      - { label: "封面图 (Preview)", name: "coverImage", widget: "image" }
+      - { label: "高清源文件 (R2 Link)", name: "highResLink", widget: "string", required: false }
+      - { 
+          label: "品类", 
+          name: "category", 
+          widget: "select", 
+          options: ["外服", "家居服", "服饰", "花稿"] 
+        }
+      - { 
+          label: "适用年龄", 
+          name: "ageGroup", 
+          widget: "select", 
+          options: ["婴童", "小中童"] 
+        }
+      - { 
+          label: "可见性级别", 
+          name: "visibility", 
+          widget: "select", 
+          options: ["公开", "半公开", "专属定制"] 
+        }
+      - { label: "基础授权价格", name: "basePrice", widget: "number", default: 500 }
+      - { label: "详情描述", name: "description", widget: "markdown" }
+      - {
+          label: "可选附加服务",
+          name: "addons",
+          widget: "list",
+          fields: [
+            { label: "服务名", name: "label", widget: "string" },
+            { label: "加项单价", name: "price", widget: "number" }
+          ]
+        }

@@ -1,0 +1,7 @@
+{
+  "name": "KidsWear Designer Portfolio",
+  "description": "A high-end children's wear designer portfolio with multi-dimensional filtering, integrated Decap CMS configuration, and copyright protection features.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
