@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MOCK_PORTFOLIO } from './services/mockData';
 import { Category, Visibility, PortfolioItem } from './types';
 import PortfolioCard from './components/PortfolioCard';
@@ -8,6 +8,7 @@ import WatermarkedImage from './components/WatermarkedImage';
 import ContactPage from './components/ContactPage';
 import CustomizationForm from './components/CustomizationForm';
 import UserAuth from './components/UserAuth';
+import AdminPanel from './components/AdminPanel';
 
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
@@ -23,6 +24,7 @@ const App: React.FC = () => {
   // 管理员后台进入状态
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
   // 联系页面状态
   const [showContactPage, setShowContactPage] = useState(false);
@@ -36,14 +38,27 @@ const App: React.FC = () => {
   // 专属定制弹窗状态
   const [showCustomization, setShowCustomization] = useState(false);
 
+  // 作品数据（从 localStorage 或 MOCK_PORTFOLIO 加载）
+  const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
+
+  // 加载作品数据
+  useEffect(() => {
+    const savedItems = localStorage.getItem('portfolioItems');
+    if (savedItems) {
+      setPortfolioItems(JSON.parse(savedItems));
+    } else {
+      setPortfolioItems(MOCK_PORTFOLIO);
+    }
+  }, []);
+
   // 过滤逻辑
   const filteredItems = useMemo(() => {
-    return MOCK_PORTFOLIO.filter(item => {
+    return portfolioItems.filter(item => {
       const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
       const matchVis = selectedVisibility === 'ALL' || item.visibility === selectedVisibility;
       return matchCat && matchVis;
     });
-  }, [selectedCategory, selectedVisibility]);
+  }, [selectedCategory, selectedVisibility, portfolioItems]);
 
   const handleCardClick = (item: PortfolioItem) => {
     if (item.visibility === Visibility.SEMI_PUBLIC && !isUnlocked) {
@@ -67,10 +82,11 @@ const App: React.FC = () => {
 
   const handleAdminSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // 管理员密码预设为 admin666
+    // 管理员密码预设为 wlj666
     if (adminPassword === 'wlj666') {
-      // 使用正确的 GitHub Pages 路径跳转
-      window.location.href = '/kidswave/admin/';
+      setIsAdminLoggedIn(true);
+      setShowAdminLogin(false);
+      setAdminPassword('');
     } else {
       alert('管理权限验证失败');
     }
@@ -80,9 +96,43 @@ const App: React.FC = () => {
     setSelectedItem(null);
   };
 
+  // 如果管理员已登录，显示管理面板
+  if (isAdminLoggedIn) {
+    return (
+      <div className="min-h-screen bg-neutral-50">
+        {/* Admin Header */}
+        <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <h1 className="text-lg font-bold uppercase tracking-tight">KIDSWAVE Admin</h1>
+              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
+                {lang === 'zh' ? '已登录' : 'Logged In'}
+              </span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
+                className="px-3 py-1 text-xs border border-neutral-200 rounded hover:bg-neutral-50"
+              >
+                {lang === 'zh' ? 'EN' : '中文'}
+              </button>
+              <button
+                onClick={() => setIsAdminLoggedIn(false)}
+                className="px-4 py-2 bg-neutral-900 text-white text-xs uppercase tracking-widest hover:bg-black rounded"
+              >
+                {lang === 'zh' ? '退出' : 'Logout'}
+              </button>
+            </div>
+          </div>
+        </header>
+        
+        <AdminPanel lang={lang} />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      {/* Header */}
+    <div className="min-h-screen bg-[#fafafa]">{/* Header */}
       <header className="sticky top-0 z-40 bg-[#fafafa]/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
           <div className="flex flex-col cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
