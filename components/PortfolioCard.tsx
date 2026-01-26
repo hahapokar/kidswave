@@ -22,6 +22,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick }) => {
           src={item.coverImage} 
           alt={item.title} 
           className="w-full h-full"
+          isSemiPublic={isSemiPublic}
         />
         
         {/* Badges */}

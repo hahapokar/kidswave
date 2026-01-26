@@ -5,15 +5,16 @@ interface WatermarkedImageProps {
   src: string;
   alt: string;
   className?: string;
+  isSemiPublic?: boolean;
 }
 
-const WatermarkedImage: React.FC<WatermarkedImageProps> = ({ src, alt, className = "" }) => {
+const WatermarkedImage: React.FC<WatermarkedImageProps> = ({ src, alt, className = "", isSemiPublic = false }) => {
   return (
     <div className={`relative overflow-hidden group ${className}`}>
       <img 
         src={src} 
         alt={alt} 
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${isSemiPublic ? 'opacity-60' : ''}`}
         loading="lazy"
       />
       {/* CSS Watermark Layer */}
@@ -24,6 +25,10 @@ const WatermarkedImage: React.FC<WatermarkedImageProps> = ({ src, alt, className
           ))}
         </div>
       </div>
+      {/* Semi-public overlay */}
+      {isSemiPublic && (
+        <div className="absolute inset-0 bg-white/30 pointer-events-none" />
+      )}
       {/* Glossy Overlay for "Premium" feel */}
       <div className="absolute inset-0 bg-gradient-to-tr from-black/5 to-white/5 pointer-events-none" />
     </div>

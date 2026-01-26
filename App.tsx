@@ -5,11 +5,14 @@ import { Category, Visibility, PortfolioItem } from './types';
 import PortfolioCard from './components/PortfolioCard';
 import PriceCalculator from './components/PriceCalculator';
 import WatermarkedImage from './components/WatermarkedImage';
+import ContactPage from './components/ContactPage';
+import CustomizationForm from './components/CustomizationForm';
 
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
-  const [selectedVisibility, setSelectedVisibility] = useState<Visibility | 'ALL'>('ALL');
+  const [selectedVisibility, setSelectedVisibility] = useState<Visibility | 'ALL'>('PUBLIC');
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [lang, setLang] = useState<'zh' | 'en'>('zh');
   
   // 普通作品查看密码状态
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
@@ -19,6 +22,12 @@ const App: React.FC = () => {
   // 管理员后台进入状态
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+
+  // 联系页面状态
+  const [showContactPage, setShowContactPage] = useState(false);
+  
+  // 移动端菜单状态
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // 过滤逻辑
   const filteredItems = useMemo(() => {
@@ -75,18 +84,74 @@ const App: React.FC = () => {
           </div>
           
           <nav className="hidden md:flex items-center space-x-12 text-xs font-medium tracking-widest uppercase text-neutral-500">
-            <button className="text-black hover:text-black transition-colors">Portfolio</button>
-            <button className="hover:text-black transition-colors">Process</button>
-            <button className="hover:text-black transition-colors">Contact</button>
+            <button 
+              onClick={() => setShowContactPage(true)}
+              className="hover:text-black transition-colors"
+            >
+              Contact
+            </button>
+            <button 
+              onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
+              className="px-4 py-2 border border-neutral-200 hover:border-neutral-400 transition-all"
+            >
+              {lang === 'zh' ? 'EN' : '中文'}
+            </button>
             <button 
               onClick={() => setShowAdminLogin(true)}
               className="px-5 py-2.5 bg-neutral-900 text-white hover:bg-black transition-all flex items-center space-x-2"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span>管理入口</span>
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              <span>{lang === 'zh' ? '用户登录' : 'Login'}</span>
             </button>
           </nav>
+
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="md:hidden p-2 hover:bg-neutral-100 rounded"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {showMobileMenu ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/>
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/>
+              )}
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {showMobileMenu && (
+          <div className="md:hidden bg-white border-t border-gray-100 py-6 px-6 space-y-4">
+            <button 
+              onClick={() => {
+                setShowContactPage(true);
+                setShowMobileMenu(false);
+              }}
+              className="w-full text-left py-3 text-sm uppercase tracking-widest hover:text-black transition-colors"
+            >
+              Contact
+            </button>
+            <button 
+              onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
+              className="w-full text-left py-3 px-4 border border-neutral-200 text-sm uppercase tracking-widest"
+            >
+              {lang === 'zh' ? 'EN' : '中文'}
+            </button>
+            <button 
+              onClick={() => {
+                setShowAdminLogin(true);
+                setShowMobileMenu(false);
+              }}
+              className="w-full py-3 bg-neutral-900 text-white text-sm uppercase tracking-widest flex items-center justify-center space-x-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span>{lang === 'zh' ? '用户登录' : 'Login'}</span>
+            </button>
+          </div>
+        )}
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
@@ -94,7 +159,9 @@ const App: React.FC = () => {
         <section className="mb-16 space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-8">
             <div className="space-y-4">
-              <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">Categories (品类筛选)</p>
+              <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">
+                {lang === 'zh' ? 'Categories (品类筛选)' : 'Product Categories'}
+              </p>
               <div className="flex flex-wrap gap-4">
                 {['ALL', ...Object.values(Category)].map(cat => (
                   <button
@@ -104,16 +171,18 @@ const App: React.FC = () => {
                       selectedCategory === cat ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
                     }`}
                   >
-                    {cat === 'ALL' ? '全部' : cat}
+                    {cat === 'ALL' ? (lang === 'zh' ? '全部' : 'All') : cat}
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="space-y-4">
-              <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">Visibility (授权级别)</p>
+              <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">
+                {lang === 'zh' ? 'Visibility (授权级别)' : 'Visibility Level'}
+              </p>
               <div className="flex flex-wrap gap-4">
-                {['ALL', ...Object.values(Visibility)].map(vis => (
+                {[Visibility.PUBLIC, Visibility.SEMI_PUBLIC].map(vis => (
                   <button
                     key={vis}
                     onClick={() => setSelectedVisibility(vis as any)}
@@ -121,7 +190,7 @@ const App: React.FC = () => {
                       selectedVisibility === vis ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
                     }`}
                   >
-                    {vis === 'ALL' ? '全部级别' : vis}
+                    {vis}
                   </button>
                 ))}
               </div>
@@ -149,7 +218,12 @@ const App: React.FC = () => {
             </button>
 
             <div className="w-full md:w-1/2 h-[50vh] md:h-auto bg-neutral-100">
-              <WatermarkedImage src={selectedItem.coverImage} alt={selectedItem.title} className="h-full w-full" />
+              <WatermarkedImage 
+                src={selectedItem.coverImage} 
+                alt={selectedItem.title} 
+                className="h-full w-full" 
+                isSemiPublic={selectedItem.visibility === Visibility.SEMI_PUBLIC}
+              />
             </div>
 
             <div className="w-full md:w-1/2 p-8 md:p-12 overflow-y-auto max-h-[100vh]">
@@ -164,21 +238,67 @@ const App: React.FC = () => {
                   <p className="text-neutral-500 leading-relaxed">{selectedItem.description}</p>
                 </div>
 
-                <PriceCalculator basePrice={selectedItem.basePrice} addons={selectedItem.addons} />
+                <PriceCalculator basePrice={selectedItem.basePrice} addons={selectedItem.addons} lang={lang} />
+
+                {/* 增值服务报价 */}
+                <div className="bg-amber-50 border-2 border-amber-200 p-6 rounded-lg">
+                  <h4 className="text-sm font-bold uppercase tracking-widest text-amber-900 mb-4 flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {lang === 'zh' ? '增值服务报价' : 'Value-Added Services'}
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">{lang === 'zh' ? '工艺版单' : 'Tech Pack'}</span>
+                      <span className="font-bold text-amber-900">+¥100</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">{lang === 'zh' ? '齐色建议' : 'Color Palette'}</span>
+                      <span className="font-bold text-amber-900">+¥50</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">{lang === 'zh' ? '面辅料建议与供应商信息' : 'Fabric & Supplier Info'}</span>
+                      <span className="font-bold text-amber-900">+¥100</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">{lang === 'zh' ? '小幅度改图' : 'Minor Revisions'}</span>
+                      <span className="font-bold text-amber-900">¥50/{lang === 'zh' ? '次' : 'time'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-neutral-700">{lang === 'zh' ? '协助批复样板' : 'Sample Approval Support'}</span>
+                      <span className="font-bold text-amber-900">¥50/{lang === 'zh' ? '次' : 'time'}</span>
+                    </div>
+                  </div>
+                </div>
 
                 {selectedItem.visibility === Visibility.EXCLUSIVE ? (
-                  <div className="p-8 bg-neutral-900 text-white rounded-lg text-center space-y-4">
-                    <p className="text-lg font-medium serif-font">该作品为品牌专属定制系列</p>
-                    <p className="text-sm text-neutral-400">目前无法直接购买或下载高清源文件。如有定制需求或相似意向，请联系设计师进行解锁与合作。</p>
-                    <button className="w-full py-4 border border-white/20 hover:bg-white hover:text-black transition-all text-xs tracking-widest uppercase font-bold">
-                      联系设计师解锁 (CONTACT)
-                    </button>
-                  </div>
+                  <>
+                    <div className="p-8 bg-neutral-900 text-white rounded-lg text-center space-y-4">
+                      <p className="text-lg font-medium serif-font">
+                        {lang === 'zh' ? '该作品为品牌专属定制系列' : 'Exclusive Customization Series'}
+                      </p>
+                      <p className="text-sm text-neutral-400">
+                        {lang === 'zh' 
+                          ? '目前无法直接购买或下载高清源文件。如有定制需求或相似意向，请联系设计师进行解锁与合作。' 
+                          : 'Not available for direct purchase. Please contact the designer for customization inquiries.'}
+                      </p>
+                      <button 
+                        onClick={() => setShowContactPage(true)}
+                        className="w-full py-4 border border-white/20 hover:bg-white hover:text-black transition-all text-xs tracking-widest uppercase font-bold"
+                      >
+                        {lang === 'zh' ? '联系设计师解锁 (CONTACT)' : 'Contact Designer'}
+                      </button>
+                    </div>
+                    
+                    {/* 专属定制问卷 */}
+                    <CustomizationForm lang={lang} />
+                  </>
                 ) : (
                   <div className="space-y-4">
                     <button className="w-full py-4 bg-neutral-900 text-white hover:bg-black transition-all text-xs tracking-widest uppercase font-bold flex items-center justify-center space-x-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <span>下载高清方案 (DOWNLOAD HI-RES)</span>
+                      <span>{lang === 'zh' ? '下载高清方案 (DOWNLOAD HI-RES)' : 'Download Hi-Res'}</span>
                     </button>
                     <p className="text-[10px] text-center text-neutral-400 uppercase tracking-widest">
                       STORAGE SOURCE: SECURE R2 BUCKET
@@ -273,6 +393,11 @@ const App: React.FC = () => {
             </p>
           </div>
         </div>
+      )}
+
+      {/* Contact Page Modal */}
+      {showContactPage && (
+        <ContactPage onClose={() => setShowContactPage(false)} lang={lang} />
       )}
 
       {/* Footer */}
