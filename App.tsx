@@ -55,7 +55,9 @@ const App: React.FC = () => {
       if (savedItems) {
         setPortfolioItems(JSON.parse(savedItems));
       } else {
+        // 首次访问，使用示范数据并保存到localStorage
         setPortfolioItems(MOCK_PORTFOLIO);
+        localStorage.setItem('portfolioItems', JSON.stringify(MOCK_PORTFOLIO));
       }
     };
     

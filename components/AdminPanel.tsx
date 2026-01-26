@@ -478,51 +478,154 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
               </div>
             ) : (
               // 添加/编辑表单
-              <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-6">
-                {/* 图片上传 */}
-                <div>
-                  <label className="block text-sm font-medium text-neutral-700 mb-2">
-                    {t.form.uploadImage}
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
-                    {formData.imagePreview ? (
-                      <div className="space-y-4">
-                        <img
-                          src={formData.imagePreview}
-                          alt="Preview"
-                          className="max-h-64 mx-auto rounded"
-                          style={{
-                            filter: formData.visibility === Visibility.SEMI_PUBLIC 
-                              ? `blur(${formData.blurLevel / 10}px)` 
-                              : 'none'
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setFormData({ ...formData, imagePreview: '', imageFile: null })}
-                          className="text-sm text-red-600 hover:text-red-700"
-                        >
-                          {lang === 'zh' ? '移除图片' : 'Remove Image'}
-                        </button>
-                      </div>
-                    ) : (
-                      <div>
-                        <svg className="w-12 h-12 mx-auto text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <label className="cursor-pointer">
-                          <span className="text-sm text-neutral-600">
-                            {lang === 'zh' ? '点击上传图片' : 'Click to upload image'}
-                          </span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
+              <form onSubmit={handleSubmit} className="max-w-6xl mx-auto space-y-6">
+                {/* 图片上传区域 */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* 左侧：图片上传 */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      {t.form.uploadImage}
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                      {formData.imagePreview ? (
+                        <div className="space-y-4">
+                          <img
+                            src={formData.imagePreview}
+                            alt="Preview"
+                            className="max-h-96 w-full object-contain mx-auto rounded"
+                            style={{
+                              filter: formData.visibility === Visibility.SEMI_PUBLIC 
+                                ? `blur(${formData.blurLevel / 10}px)` 
+                                : 'none'
+                            }}
                           />
-                        </label>
-                      </div>
-                    )}
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, imagePreview: '', imageFile: null })}
+                            className="text-sm text-red-600 hover:text-red-700 font-medium"
+                          >
+                            {lang === 'zh' ? '移除图片' : 'Remove Image'}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="py-12">
+                          <svg className="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                          </svg>
+                          <label className="cursor-pointer">
+                            <span className="text-base text-neutral-600 font-medium">
+                              {lang === 'zh' ? '点击上传图片' : 'Click to upload image'}
+                            </span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                            />
+                          </label>
+                          <p className="text-xs text-neutral-400 mt-2">
+                            {lang === 'zh' ? '支持 JPG, PNG, GIF 格式' : 'Support JPG, PNG, GIF'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 右侧：模糊度设置（半公开作品时显示） */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      {lang === 'zh' ? '图片效果设置' : 'Image Effect Settings'}
+                    </label>
+                    <div className="border-2 border-gray-200 rounded-lg p-6 h-full">
+                      {formData.visibility === Visibility.SEMI_PUBLIC ? (
+                        <div className="space-y-6">
+                          {/* 模糊度控制 */}
+                          <div className="bg-amber-50 border-2 border-amber-200 rounded-lg p-5">
+                            <div className="flex items-center justify-between mb-4">
+                              <label className="text-base font-bold text-amber-900">
+                                {t.form.blurLevel}
+                              </label>
+                              <span className="text-3xl font-bold text-amber-600">
+                                {formData.blurLevel}%
+                              </span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={formData.blurLevel}
+                              onChange={(e) => setFormData({ ...formData, blurLevel: Number(e.target.value) })}
+                              className="w-full h-3 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                            />
+                            <div className="flex justify-between text-xs text-amber-700 mt-2 font-medium">
+                              <span>0% (清晰)</span>
+                              <span>50% (中度)</span>
+                              <span>100% (完全模糊)</span>
+                            </div>
+                          </div>
+
+                          {/* 实时预览提示 */}
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div className="flex items-start space-x-3">
+                              <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                              </svg>
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-blue-900 mb-1">
+                                  {lang === 'zh' ? '💡 实时预览' : '💡 Live Preview'}
+                                </p>
+                                <p className="text-xs text-blue-700">
+                                  {lang === 'zh' 
+                                    ? '左侧图片会实时显示模糊效果，调整滑块查看不同程度的模糊' 
+                                    : 'The image on the left shows real-time blur effect'}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 推荐设置 */}
+                          <div>
+                            <p className="text-xs font-medium text-neutral-600 mb-2">
+                              {lang === 'zh' ? '推荐设置：' : 'Recommended:'}
+                            </p>
+                            <div className="grid grid-cols-3 gap-2">
+                              {[
+                                { label: lang === 'zh' ? '轻度' : 'Light', value: 20 },
+                                { label: lang === 'zh' ? '中度' : 'Medium', value: 50 },
+                                { label: lang === 'zh' ? '重度' : 'Heavy', value: 80 }
+                              ].map(preset => (
+                                <button
+                                  key={preset.value}
+                                  type="button"
+                                  onClick={() => setFormData({ ...formData, blurLevel: preset.value })}
+                                  className={`px-3 py-2 text-xs font-medium rounded transition-colors ${
+                                    formData.blurLevel === preset.value
+                                      ? 'bg-amber-600 text-white'
+                                      : 'bg-white border border-gray-300 text-gray-700 hover:border-amber-400'
+                                  }`}
+                                >
+                                  {preset.label} {preset.value}%
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-center">
+                          <div className="space-y-3">
+                            <svg className="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                            </svg>
+                            <p className="text-sm text-gray-500">
+                              {lang === 'zh' 
+                                ? '选择"半公开"可见性后\n可设置图片模糊度' 
+                                : 'Select "Semi-Public" to\nenable blur settings'}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -601,39 +704,22 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                   </div>
                 </div>
 
-                {/* 模糊度设置 */}
+                {/* 半公开密码设置 */}
                 {formData.visibility === Visibility.SEMI_PUBLIC && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        {t.form.blurLevel}: {formData.blurLevel}%
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={formData.blurLevel}
-                        onChange={(e) => setFormData({ ...formData, blurLevel: Number(e.target.value) })}
-                        className="w-full"
-                      />
-                      <p className="text-xs text-neutral-500 mt-2">{t.form.blurNote}</p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        {t.form.password} *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        placeholder={lang === 'zh' ? '设置访问密码' : 'Set access password'}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none"
-                        required
-                      />
-                      <p className="text-xs text-neutral-500 mt-2">{t.form.passwordNote}</p>
-                    </div>
-                  </>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">
+                      {t.form.password} *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      placeholder={lang === 'zh' ? '设置访问密码（例如：abc123）' : 'Set access password (e.g., abc123)'}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none"
+                      required
+                    />
+                    <p className="text-xs text-neutral-500 mt-2">{t.form.passwordNote}</p>
+                  </div>
                 )}
 
                 {/* 专属定制用户分配 */}
