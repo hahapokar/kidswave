@@ -11,6 +11,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'list' | 'add' | 'stats'>('list');
+  const [showPreview, setShowPreview] = useState(false);
+  const [designerInfo, setDesignerInfo] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('designerInfo') || '{}');
+    } catch { return {}; }
+  });
+  // extend tabs to include settings
+  const [settingsTab, setSettingsTab] = useState(false);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -354,6 +362,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
               >
                 {t.tabs.stats}
               </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'settings'
+                    ? 'border-neutral-900 text-neutral-900'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-700'
+                }`}
+              >
+                {lang === 'zh' ? '设计师设置' : 'Designer Settings'}
+              </button>
             </div>
           </div>
 
@@ -382,6 +400,33 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                     <div className="text-sm text-purple-600 font-medium mb-2">{t.stats.exclusive}</div>
                     <div className="text-3xl font-bold text-purple-900">{stats.exclusive}</div>
                   </div>
+                  {/* Preview Modal */}
+                  {showPreview && (
+                    <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/50 p-6">
+                      <div className="bg-white w-full max-w-4xl rounded-lg shadow-2xl overflow-auto max-h-[90vh]">
+                        <div className="p-6">
+                          <button onClick={() => setShowPreview(false)} className="float-right px-3 py-1">Close</button>
+                          <h3 className="text-2xl font-bold mb-4">{lang === 'zh' ? '作品预览' : 'Preview'}</h3>
+                          <div className="md:flex gap-6">
+                            <div className="md:w-1/2 bg-neutral-100">
+                              <WatermarkedImage src={formData.imagePreview || ''} alt={formData.title || 'Preview'} className="w-full h-full" isSemiPublic={formData.visibility === Visibility.SEMI_PUBLIC} blurPercentage={formData.blurLevel} />
+                            </div>
+                            <div className="md:w-1/2 p-4">
+                              <h4 className="text-xl font-bold mb-2">{formData.title}</h4>
+                              <p className="text-neutral-600 mb-4">{formData.description}</p>
+                              <div className="mb-4">
+                                <strong>版权费:</strong> ¥{formData.copyrightFee} <br />
+                                <strong>使用权费:</strong> ¥{formData.usageFee}
+                              </div>
+                              <div>
+                                <p className="text-sm text-neutral-500">{lang === 'zh' ? '设计说明示例' : 'Design notes preview'}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* 分类统计 */}
@@ -509,6 +554,44 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                     ))}
                   </div>
                 )}
+              </div>
+            ) : activeTab === 'settings' ? (
+              <div className="p-6">
+                <h2 className="text-2xl font-bold mb-4">{lang === 'zh' ? '设计师信息' : 'Designer Info'}</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '封面图片' : 'Profile Image'}</label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      {designerInfo.image ? (
+                        <img src={designerInfo.image} className="mx-auto max-h-48 object-contain" />
+                      ) : (
+                        <div className="text-neutral-400">{lang === 'zh' ? '未设置' : 'Not set'}</div>
+                      )}
+                      <div className="mt-3">
+                        <input type="file" accept="image/*" onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setDesignerInfo(prev => ({ ...prev, image: reader.result as string }));
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '简介' : 'Bio'}</label>
+                    <textarea value={designerInfo.bio || ''} onChange={(e) => setDesignerInfo(prev => ({ ...prev, bio: e.target.value }))} rows={8} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                    <div className="flex gap-4 justify-end mt-4">
+                      <button type="button" onClick={() => {
+                        localStorage.setItem('designerInfo', JSON.stringify(designerInfo));
+                        alert(lang === 'zh' ? '已保存' : 'Saved');
+                      }} className="px-6 py-3 bg-neutral-900 text-white rounded">{lang === 'zh' ? '保存' : 'Save'}</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               // 添加/编辑表单
@@ -857,6 +940,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                     className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     {t.form.cancel}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {lang === 'zh' ? '预览' : 'Preview'}
                   </button>
                   <button
                     type="submit"

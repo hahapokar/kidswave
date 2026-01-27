@@ -11,6 +11,7 @@ import UserAuth from './components/UserAuth';
 import AdminPanel from './components/AdminPanel';
 import ImagePasswordPrompt from './components/ImagePasswordPrompt';
 import UserDashboard from './components/UserDashboard';
+import DesignerPage from './components/DesignerPage';
 
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
@@ -34,6 +35,7 @@ const App: React.FC = () => {
 
   // 联系页面状态
   const [showContactPage, setShowContactPage] = useState(false);
+  const [showDesignerPage, setShowDesignerPage] = useState(false);
   
   // 移动端菜单状态
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -86,6 +88,28 @@ const App: React.FC = () => {
     };
     return list.sort((a, b) => orderValue(a) - orderValue(b));
   }, [selectedCategory, selectedVisibility, portfolioItems]);
+
+  // purchases (for semi-public payment flow)
+  const [purchasedImages, setPurchasedImages] = useState<Set<string>>(() => {
+    try {
+      return new Set(JSON.parse(localStorage.getItem('purchasedImages') || '[]'));
+    } catch { return new Set(); }
+  });
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentTargetId, setPaymentTargetId] = useState<string | null>(null);
+
+  const handlePurchaseSuccess = (itemId: string) => {
+    const next = new Set(purchasedImages);
+    next.add(itemId);
+    setPurchasedImages(next);
+    localStorage.setItem('purchasedImages', JSON.stringify(Array.from(next)));
+    setShowPaymentModal(false);
+  };
+
+  const openPaymentFor = (itemId: string) => {
+    setPaymentTargetId(itemId);
+    setShowPaymentModal(true);
+  };
 
   const handleCardClick = (item: PortfolioItem) => {
     // 增加访问计数
@@ -159,6 +183,8 @@ const App: React.FC = () => {
     setSelectedItem(null);
   };
 
+  const openDesignerPage = () => setShowDesignerPage(true);
+
   // 如果管理员已登录，显示管理面板
   if (isAdminLoggedIn) {
     return (
@@ -201,6 +227,9 @@ const App: React.FC = () => {
           <div className="flex flex-col cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
             <h1 className="text-2xl font-bold tracking-tighter serif-font uppercase">KIDSWAVE</h1>
             <p className="text-[10px] tracking-[0.3em] uppercase text-neutral-400">Junior Fashion Portfolio</p>
+          </div>
+          <div className="hidden md:flex items-center space-x-6">
+            <button onClick={openDesignerPage} className="text-sm hover:text-black">{lang === 'zh' ? '设计师简介' : 'Designer'}</button>
           </div>
           
           <nav className="hidden md:flex items-center space-x-8 text-xs font-medium tracking-widest uppercase text-neutral-500">
@@ -296,6 +325,9 @@ const App: React.FC = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-12">
+        {showDesignerPage ? (
+          <DesignerPage lang={lang} />
+        ) : null}
         {/* 如果用户已登录，显示用户专属面板 */}
         {currentUser ? (
           <UserDashboard user={currentUser} lang={lang} onLogout={() => setCurrentUser(null)} />
@@ -443,22 +475,40 @@ const App: React.FC = () => {
                   </>
                 ) : (
                   <div className="space-y-4">
-                    <button className="w-full py-4 bg-neutral-900 text-white hover:bg-black transition-all text-xs tracking-widest uppercase font-bold flex items-center justify-center space-x-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      <span>{lang === 'zh' ? '下载高清方案 (DOWNLOAD HI-RES)' : 'Download Hi-Res'}</span>
-                    </button>
-
-                    {/* 如果是半公开且已解锁，显示按钮 */}
-                    {selectedItem.visibility === Visibility.SEMI_PUBLIC && 
-                     imagePasswordUnlocked.has(selectedItem.id) && 
-                     selectedItem.originalImage && (
-                      <a
-                        href={selectedItem.originalImage}
-                        download={`${selectedItem.title}-original.jpg`}
-                        className="block w-full py-4 bg-amber-600 text-white hover:bg-amber-700 transition-all text-xs tracking-widest uppercase font-bold text-center"
-                      >
-                        {lang === 'zh' ? '仅购买使用权 (DOWNLOAD ORIGINAL)' : 'Download Original'}
-                      </a>
+                    {selectedItem.visibility === Visibility.PUBLIC ? (
+                      <button onClick={() => {
+                          // download cover image directly
+                          const link = document.createElement('a');
+                          link.href = selectedItem.coverImage;
+                          link.download = `${selectedItem.title}.jpg`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                        }}
+                        className="w-full py-4 bg-neutral-900 text-white hover:bg-black transition-all text-xs tracking-widest uppercase font-bold flex items-center justify-center space-x-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        <span>{lang === 'zh' ? '下载图片' : 'Download Image'}</span>
+                      </button>
+                    ) : (
+                      // semi-public: show purchase button or download if purchased / unlocked
+                      <>
+                        { (purchasedImages.has(selectedItem.id) || imagePasswordUnlocked.has(selectedItem.id)) ? (
+                          <a
+                            href={selectedItem.originalImage || selectedItem.coverImage}
+                            download={`${selectedItem.title}-hires.jpg`}
+                            className="block w-full py-4 bg-amber-600 text-white hover:bg-amber-700 transition-all text-xs tracking-widest uppercase font-bold text-center"
+                          >
+                            {lang === 'zh' ? '下载图片' : 'Download Image'}
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() => openPaymentFor(selectedItem.id)}
+                            className="w-full py-4 bg-amber-600 text-white hover:bg-amber-700 transition-all text-xs tracking-widest uppercase font-bold flex items-center justify-center space-x-2"
+                          >
+                            <span>{lang === 'zh' ? '购买高清图片' : 'Purchase Hi-Res Image'}</span>
+                          </button>
+                        )}
+                      </>
                     )}
 
                     <p className="text-[10px] text-center text-neutral-400 uppercase tracking-widest">
@@ -585,6 +635,35 @@ const App: React.FC = () => {
       )}
 
       {/* Customization Modal */}
+
+      {/* Payment Modal for purchasing semi-public images */}
+      {showPaymentModal && paymentTargetId && (
+        <div className="fixed inset-0 z-[75] flex items-center justify-center bg-black/60 p-6">
+          <div className="bg-white rounded-lg shadow-2xl max-w-xl w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">{lang === 'zh' ? '购买高清图片' : 'Purchase Hi-Res Image'}</h3>
+              <button onClick={() => setShowPaymentModal(false)} className="text-neutral-500">关闭</button>
+            </div>
+            <p className="text-sm text-neutral-600 mb-4">{lang === 'zh' ? '使用支付宝或微信扫描下方二维码支付，支付完成后点击“我已支付”。' : 'Scan the QR code with Alipay or WeChat to pay. After payment click "I have paid".'}</p>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="p-6 bg-neutral-100 flex flex-col items-center">
+                <div className="w-40 h-40 bg-white border flex items-center justify-center">支付宝二维码</div>
+                <div className="text-xs text-neutral-500 mt-2">Alipay</div>
+              </div>
+              <div className="p-6 bg-neutral-100 flex flex-col items-center">
+                <div className="w-40 h-40 bg-white border flex items-center justify-center">微信二维码</div>
+                <div className="text-xs text-neutral-500 mt-2">WeChat Pay</div>
+              </div>
+            </div>
+            <div className="flex gap-4">
+              <button onClick={() => {
+                if (paymentTargetId) handlePurchaseSuccess(paymentTargetId);
+              }} className="flex-1 py-3 bg-green-600 text-white rounded">{lang === 'zh' ? '我已支付' : 'I have paid'}</button>
+              <button onClick={() => setShowPaymentModal(false)} className="flex-1 py-3 border rounded">{lang === 'zh' ? '取消' : 'Cancel'}</button>
+            </div>
+          </div>
+        </div>
+      )}
       {showCustomization && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm p-6 overflow-y-auto">
           <div className="relative bg-white w-full max-w-3xl rounded-lg shadow-2xl p-10">
