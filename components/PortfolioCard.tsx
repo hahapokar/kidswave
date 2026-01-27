@@ -3,6 +3,7 @@ import React from 'react';
 import { PortfolioItem, Visibility } from '../types';
 import WatermarkedImage from './WatermarkedImage';
 import { getCategoryLabel, getVisibilityLabel } from '../utils/labels';
+import { translateCategory, translateAgeGroup } from '../utils/translations';
 
 interface PortfolioCardProps {
   item: PortfolioItem;
@@ -31,11 +32,11 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick, lang }) =>
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-[10px] tracking-widest uppercase font-medium shadow-sm">
-            {getCategoryLabel(item.category, lang)}
+            {translateCategory(item.category, lang)}
           </span>
           {isExclusive && (
             <span className="px-3 py-1 bg-neutral-900 text-white text-[10px] tracking-widest uppercase font-bold shadow-sm">
-              SOLD / EXCLUSIVE (专属定制)
+              {lang === 'zh' ? 'SOLD / EXCLUSIVE (专属定制)' : 'SOLD / EXCLUSIVE'}
             </span>
           )}
           {isSemiPublic && (
@@ -49,7 +50,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick, lang }) =>
         <div className="space-y-1">
         <h3 className="text-sm font-medium text-neutral-800 group-hover:underline underline-offset-4">{item.title}</h3>
         <div className="flex justify-between items-center">
-          <span className="text-xs text-neutral-400">{item.ageGroup}</span>
+          <span className="text-xs text-neutral-400">{translateAgeGroup(item.ageGroup, lang)}</span>
         </div>
       </div>
     </div>

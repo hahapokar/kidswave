@@ -12,11 +12,14 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [activeTab, setActiveTab] = useState<'list' | 'add' | 'stats'>('list');
   const [showPreview, setShowPreview] = useState(false);
-  const [designerInfo, setDesignerInfo] = useState(() => {
+  const [designers, setDesigners] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('designerInfo') || '{}');
-    } catch { return {}; }
+      const stored = localStorage.getItem('designers');
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
   });
+  const [editingDesigner, setEditingDesigner] = useState<any>(null);
+  const [designerFormData, setDesignerFormData] = useState({ name: '', bio: '', image: '' });
   // extend tabs to include settings
   const [settingsTab, setSettingsTab] = useState(false);
   
@@ -557,40 +560,112 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
               </div>
             ) : activeTab === 'settings' ? (
               <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">{lang === 'zh' ? '设计师信息' : 'Designer Info'}</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '封面图片' : 'Profile Image'}</label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                      {designerInfo.image ? (
-                        <img src={designerInfo.image} className="mx-auto max-h-48 object-contain" />
-                      ) : (
-                        <div className="text-neutral-400">{lang === 'zh' ? '未设置' : 'Not set'}</div>
-                      )}
-                      <div className="mt-3">
-                        <input type="file" accept="image/*" onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                              setDesignerInfo(prev => ({ ...prev, image: reader.result as string }));
-                            };
-                            reader.readAsDataURL(file);
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold">{lang === 'zh' ? '设计师管理' : 'Designer Management'}</h2>
+                  <button type="button" onClick={() => {
+                    setDesignerFormData({ name: '', bio: '', image: '' });
+                    setEditingDesigner(null);
+                  }} className="px-4 py-2 bg-neutral-900 text-white rounded hover:bg-black">{lang === 'zh' ? '+ 添加设计师' : '+ Add Designer'}</button>
+                </div>
+                
+                {/* Designer Form */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-bold mb-4">{editingDesigner ? (lang === 'zh' ? '编辑设计师' : 'Edit Designer') : (lang === 'zh' ? '添加设计师' : 'Add Designer')}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '设计师姓名' : 'Designer Name'}</label>
+                      <input type="text" value={designerFormData.name} onChange={(e) => setDesignerFormData(prev => ({ ...prev, name: e.target.value }))} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                      
+                      <label className="block text-sm font-medium text-neutral-700 mb-2 mt-4">{lang === 'zh' ? '封面图片' : 'Profile Image'}</label>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                        {designerFormData.image ? (
+                          <img src={designerFormData.image} className="mx-auto max-h-48 object-contain" />
+                        ) : (
+                          <div className="text-neutral-400">{lang === 'zh' ? '未设置' : 'Not set'}</div>
+                        )}
+                        <div className="mt-3">
+                          <input type="file" accept="image/*" onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setDesignerFormData(prev => ({ ...prev, image: reader.result as string }));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }} />
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '简介' : 'Bio'}</label>
+                      <textarea value={designerFormData.bio} onChange={(e) => setDesignerFormData(prev => ({ ...prev, bio: e.target.value }))} rows={12} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
+                      <div className="flex gap-4 justify-end mt-4">
+                        {editingDesigner && (
+                          <button type="button" onClick={() => {
+                            setDesignerFormData({ name: '', bio: '', image: '' });
+                            setEditingDesigner(null);
+                          }} className="px-6 py-3 border border-gray-300 rounded hover:bg-gray-50">{lang === 'zh' ? '取消' : 'Cancel'}</button>
+                        )}
+                        <button type="button" onClick={() => {
+                          if (!designerFormData.name.trim()) {
+                            alert(lang === 'zh' ? '请填写设计师姓名' : 'Please enter designer name');
+                            return;
                           }
-                        }} />
+                          let updated;
+                          if (editingDesigner) {
+                            updated = designers.map((d: any) => d.id === editingDesigner.id ? { ...designerFormData, id: editingDesigner.id } : d);
+                          } else {
+                            updated = [...designers, { ...designerFormData, id: Date.now().toString() }];
+                          }
+                          setDesigners(updated);
+                          localStorage.setItem('designers', JSON.stringify(updated));
+                          setDesignerFormData({ name: '', bio: '', image: '' });
+                          setEditingDesigner(null);
+                          alert(lang === 'zh' ? '已保存' : 'Saved');
+                        }} className="px-6 py-3 bg-neutral-900 text-white rounded hover:bg-black">{lang === 'zh' ? '保存' : 'Save'}</button>
                       </div>
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '简介' : 'Bio'}</label>
-                    <textarea value={designerInfo.bio || ''} onChange={(e) => setDesignerInfo(prev => ({ ...prev, bio: e.target.value }))} rows={8} className="w-full px-4 py-2 border border-gray-300 rounded-lg" />
-                    <div className="flex gap-4 justify-end mt-4">
-                      <button type="button" onClick={() => {
-                        localStorage.setItem('designerInfo', JSON.stringify(designerInfo));
-                        alert(lang === 'zh' ? '已保存' : 'Saved');
-                      }} className="px-6 py-3 bg-neutral-900 text-white rounded">{lang === 'zh' ? '保存' : 'Save'}</button>
+                </div>
+                
+                {/* Designers List */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold">{lang === 'zh' ? '当前设计师列表' : 'Current Designers'}</h3>
+                  {designers.length === 0 ? (
+                    <div className="text-center py-8 text-neutral-400">{lang === 'zh' ? '暂无设计师' : 'No designers yet'}</div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {designers.map((designer: any) => (
+                        <div key={designer.id} className="border border-gray-200 rounded-lg p-4 flex gap-4">
+                          <div className="w-20 h-20 bg-neutral-100 rounded overflow-hidden flex-shrink-0">
+                            {designer.image ? (
+                              <img src={designer.image} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-neutral-300">No Image</div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-bold text-lg">{designer.name}</h4>
+                            <p className="text-sm text-neutral-500 line-clamp-2">{designer.bio}</p>
+                            <div className="flex gap-2 mt-2">
+                              <button onClick={() => {
+                                setDesignerFormData(designer);
+                                setEditingDesigner(designer);
+                              }} className="text-xs px-3 py-1 bg-neutral-100 hover:bg-neutral-200 rounded">{lang === 'zh' ? '编辑' : 'Edit'}</button>
+                              <button onClick={() => {
+                                if (confirm(lang === 'zh' ? '确认删除此设计师？' : 'Delete this designer?')) {
+                                  const updated = designers.filter((d: any) => d.id !== designer.id);
+                                  setDesigners(updated);
+                                  localStorage.setItem('designers', JSON.stringify(updated));
+                                }
+                              }} className="text-xs px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded">{lang === 'zh' ? '删除' : 'Delete'}</button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             ) : (

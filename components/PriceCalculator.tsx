@@ -13,6 +13,7 @@ interface PriceCalculatorProps {
 const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice = 0, copyrightFee = 0, usageFee = 0, addons, lang }) => {
   const [includeBasePrice, setIncludeBasePrice] = useState(true);
   const [selectedServices, setSelectedServices] = useState<Set<number>>(new Set());
+  const [addonsExpanded, setAddonsExpanded] = useState(false);
 
   // 所有服务选项（包含原addons概念的增值服务）
   const allServices = [
@@ -74,15 +75,29 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice = 0, copyri
           <span className="text-base font-bold text-gray-900">¥{computedBase.toLocaleString()}</span>
         </label>
 
-        {/* 增值服务标题 */}
+        {/* 增值服务标题 - 可折叠 */}
         <div className="pt-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-amber-800 mb-3">
-            {t.services}
-          </p>
+          <button
+            type="button"
+            onClick={() => setAddonsExpanded(!addonsExpanded)}
+            className="w-full flex items-center justify-between py-3 px-4 bg-amber-50 hover:bg-amber-100 rounded transition-colors"
+          >
+            <p className="text-xs font-bold uppercase tracking-widest text-amber-800">
+              {t.services}
+            </p>
+            <svg
+              className={`w-4 h-4 text-amber-800 transition-transform ${addonsExpanded ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
 
-        {/* 所有增值服务选项 */}
-        {allServices.map((service, idx) => (
+        {/* 所有增值服务选项 - 折叠展示 */}
+        {addonsExpanded && allServices.map((service, idx) => (
           <label 
             key={`service-${idx}`} 
             className="flex items-center justify-between group cursor-pointer bg-amber-50/50 px-4 py-3 rounded hover:bg-amber-50 transition-colors"

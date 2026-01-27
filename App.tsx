@@ -11,8 +11,7 @@ import UserAuth from './components/UserAuth';
 import AdminPanel from './components/AdminPanel';
 import ImagePasswordPrompt from './components/ImagePasswordPrompt';
 import UserDashboard from './components/UserDashboard';
-import DesignerPage from './components/DesignerPage';
-
+import DesignerPage from './components/DesignerPage';import { translateCategory, translateAgeGroup } from './utils/translations';
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
   const [selectedVisibility, setSelectedVisibility] = useState<Visibility | 'ALL'>(Visibility.PUBLIC);
@@ -228,11 +227,8 @@ const App: React.FC = () => {
             <h1 className="text-2xl font-bold tracking-tighter serif-font uppercase">KIDSWAVE</h1>
             <p className="text-[10px] tracking-[0.3em] uppercase text-neutral-400">Junior Fashion Portfolio</p>
           </div>
-          <div className="hidden md:flex items-center space-x-6">
-            <button onClick={openDesignerPage} className="text-sm hover:text-black">{lang === 'zh' ? '设计师简介' : 'Designer'}</button>
-          </div>
           
-          <nav className="hidden md:flex items-center space-x-8 text-xs font-medium tracking-widest uppercase text-neutral-500">
+          <nav className="hidden md:flex items-center space-x-6 text-xs font-medium tracking-widest uppercase">
             <button 
               onClick={() => setShowCustomization(true)}
               className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg font-bold flex items-center space-x-2 rounded"
@@ -242,18 +238,31 @@ const App: React.FC = () => {
               </svg>
               <span>{lang === 'zh' ? '专属定制' : 'Customization'}</span>
             </button>
+            
+            <button 
+              onClick={openDesignerPage}
+              className="px-5 py-3 border-2 border-neutral-300 hover:border-neutral-900 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-all font-bold flex items-center space-x-2 rounded"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              <span>{lang === 'zh' ? '设计师' : 'Designers'}</span>
+            </button>
+            
             <button 
               onClick={() => setShowContactPage(true)}
-              className="hover:text-black transition-colors"
+              className="hover:text-black transition-colors text-neutral-500"
             >
               {lang === 'zh' ? '联系方式' : 'Contact'}
             </button>
+            
             <button 
               onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
-              className="px-4 py-2 border border-neutral-200 hover:border-neutral-400 transition-all"
+              className="px-4 py-2 border border-neutral-200 hover:border-neutral-400 transition-all text-neutral-700"
             >
               {lang === 'zh' ? 'EN' : '中文'}
             </button>
+            
             <button 
               onClick={() => setShowUserAuth(true)}
               className="px-5 py-2.5 bg-neutral-900 text-white hover:bg-black transition-all flex items-center space-x-2"
@@ -295,6 +304,15 @@ const App: React.FC = () => {
             </button>
             <button 
               onClick={() => {
+                openDesignerPage();
+                setShowMobileMenu(false);
+              }}
+              className="w-full text-left py-3 text-sm uppercase tracking-widest hover:text-black transition-colors"
+            >
+              {lang === 'zh' ? '设计师简介' : 'Designers'}
+            </button>
+            <button 
+              onClick={() => {
                 setShowContactPage(true);
                 setShowMobileMenu(false);
               }}
@@ -326,10 +344,16 @@ const App: React.FC = () => {
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         {showDesignerPage ? (
-          <DesignerPage lang={lang} />
-        ) : null}
-        {/* 如果用户已登录，显示用户专属面板 */}
-        {currentUser ? (
+          <div>
+            <button onClick={() => setShowDesignerPage(false)} className="mb-6 flex items-center space-x-2 text-sm text-neutral-500 hover:text-black transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span>{lang === 'zh' ? '返回首页' : 'Back to Gallery'}</span>
+            </button>
+            <DesignerPage lang={lang} />
+          </div>
+        ) : currentUser ? (
           <UserDashboard user={currentUser} lang={lang} onLogout={() => setCurrentUser(null)} />
         ) : (
           <>
@@ -349,7 +373,7 @@ const App: React.FC = () => {
                           selectedCategory === cat ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
                         }`}
                       >
-                        {cat === 'ALL' ? (lang === 'zh' ? '全部' : 'All') : cat}
+                        {cat === 'ALL' ? (lang === 'zh' ? '全部' : 'All') : translateCategory(cat as Category, lang)}
                       </button>
                     ))}
                   </div>
@@ -362,7 +386,7 @@ const App: React.FC = () => {
             {/* Grid */}
             <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
               {filteredItems.map(item => (
-                <PortfolioCard key={item.id} item={item} onClick={handleCardClick} />
+                <PortfolioCard key={item.id} item={item} onClick={handleCardClick} lang={lang} />
               ))}
             </section>
           </>
@@ -394,9 +418,9 @@ const App: React.FC = () => {
               <div className="space-y-8">
                 <div>
                   <div className="flex items-center space-x-4 mb-4">
-                    <span className="text-xs uppercase tracking-widest font-bold text-neutral-400">{selectedItem.category}</span>
+                    <span className="text-xs uppercase tracking-widest font-bold text-neutral-400">{translateCategory(selectedItem.category, lang)}</span>
                     <span className="w-1 h-1 bg-neutral-300 rounded-full"></span>
-                    <span className="text-xs uppercase tracking-widest font-bold text-neutral-400">{selectedItem.ageGroup}</span>
+                    <span className="text-xs uppercase tracking-widest font-bold text-neutral-400">{translateAgeGroup(selectedItem.ageGroup, lang)}</span>
                   </div>
                   <h2 className="text-3xl font-bold serif-font text-neutral-900 mb-4">{selectedItem.title}</h2>
                   {(
