@@ -2,13 +2,15 @@
 import React from 'react';
 import { PortfolioItem, Visibility } from '../types';
 import WatermarkedImage from './WatermarkedImage';
+import { getCategoryLabel, getVisibilityLabel } from '../utils/labels';
 
 interface PortfolioCardProps {
   item: PortfolioItem;
   onClick: (item: PortfolioItem) => void;
+  lang: 'zh' | 'en';
 }
 
-const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick }) => {
+const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick, lang }) => {
   const isExclusive = item.visibility === Visibility.EXCLUSIVE;
   const isSemiPublic = item.visibility === Visibility.SEMI_PUBLIC;
 
@@ -29,7 +31,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick }) => {
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-[10px] tracking-widest uppercase font-medium shadow-sm">
-            {item.category}
+            {getCategoryLabel(item.category, lang)}
           </span>
           {isExclusive && (
             <span className="px-3 py-1 bg-neutral-900 text-white text-[10px] tracking-widest uppercase font-bold shadow-sm">
@@ -37,14 +39,14 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick }) => {
             </span>
           )}
           {isSemiPublic && (
-            <span className="px-3 py-1 bg-amber-50 text-amber-800 text-[10px] tracking-widest uppercase font-bold shadow-sm border border-amber-200">
-              MEMBER ONLY (半公开)
+              <span className="px-3 py-1 bg-amber-50 text-amber-800 text-[10px] tracking-widest uppercase font-bold shadow-sm border border-amber-200">
+              {getVisibilityLabel(item.visibility, lang)}
             </span>
           )}
         </div>
       </div>
       
-      <div className="space-y-1">
+        <div className="space-y-1">
         <h3 className="text-sm font-medium text-neutral-800 group-hover:underline underline-offset-4">{item.title}</h3>
         <div className="flex justify-between items-center">
           <span className="text-xs text-neutral-400">{item.ageGroup}</span>
