@@ -19,7 +19,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ user, lang, onLogout }) =
       myItems: '我的作品',
       noItems: '暂无分配的专属作品',
       viewDetail: '查看详情',
-      download: '下载高清图',
+      download: '购买版权获得高清图',
       close: '关闭',
       logout: '退出登录',
       description: '作品描述',
@@ -105,10 +105,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ user, lang, onLogout }) =
             {items.map(item => (
               <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                 <div className="relative aspect-[4/5] bg-neutral-100">
-                  <img
+                  <WatermarkedImage
                     src={item.coverImage}
                     alt={item.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full"
+                    isSemiPublic={item.visibility === Visibility.SEMI_PUBLIC}
+                    blurPercentage={item.blurPercentage}
                   />
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 bg-purple-600 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg">
@@ -120,7 +122,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ user, lang, onLogout }) =
                   <h3 className="text-xl font-bold mb-2">{item.title}</h3>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm text-neutral-500">{item.category}</span>
-                    <span className="text-lg font-bold text-purple-600">¥{item.basePrice}</span>
+                    <span className="text-lg font-bold text-purple-600">¥{((item.copyrightFee||0) + (item.usageFee||item.basePrice||0)).toLocaleString()}</span>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -157,10 +159,12 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ user, lang, onLogout }) =
             </button>
 
             <div className="w-full md:w-1/2 bg-neutral-100">
-              <img
+              <WatermarkedImage
                 src={selectedItem.coverImage}
                 alt={selectedItem.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                isSemiPublic={selectedItem.visibility === Visibility.SEMI_PUBLIC}
+                blurPercentage={selectedItem.blurPercentage}
               />
             </div>
 
@@ -177,7 +181,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ user, lang, onLogout }) =
                 <div className="border-t border-gray-200 pt-6">
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-sm text-neutral-500 uppercase tracking-widest">{t.price}</span>
-                    <span className="text-3xl font-bold text-purple-600">¥{selectedItem.basePrice}</span>
+                    <span className="text-3xl font-bold text-purple-600">¥{(((selectedItem.copyrightFee||0) + (selectedItem.usageFee||selectedItem.basePrice||0))).toLocaleString()}</span>
                   </div>
                   <button
                     onClick={() => handleDownload(selectedItem)}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import WatermarkedImage from './WatermarkedImage';
 import { Category, Visibility, AgeGroup, PortfolioItem } from '../types';
 
 interface AdminPanelProps {
@@ -16,7 +17,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
     category: Category.OUTERWEAR,
     ageGroup: AgeGroup.KIDS,
     visibility: Visibility.PUBLIC,
-    basePrice: 0,
+    // 拆分价格：版权费 + 使用权费
+    copyrightFee: 0,
+    usageFee: 0,
     description: '',
     blurLevel: 0,
     password: '',
@@ -203,7 +206,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       category: formData.category,
       ageGroup: formData.ageGroup,
       visibility: formData.visibility,
-      basePrice: formData.basePrice,
+      copyrightFee: formData.copyrightFee,
+      usageFee: formData.usageFee,
+      basePrice: (formData.copyrightFee || 0) + (formData.usageFee || 0),
       description: formData.description,
       blurPercentage: formData.visibility === Visibility.SEMI_PUBLIC ? formData.blurLevel : 0,
       password: formData.visibility === Visibility.SEMI_PUBLIC ? formData.password : undefined,
@@ -243,12 +248,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   // 编辑作品
   const handleEdit = (item: PortfolioItem) => {
     setEditingItem(item);
+    const inferredCopyright = item.copyrightFee ?? Math.round((item.basePrice || 0) * 0.6);
+    const inferredUsage = item.usageFee ?? ((item.basePrice || 0) - inferredCopyright);
     setFormData({
       title: item.title,
       category: item.category,
       ageGroup: item.ageGroup,
       visibility: item.visibility,
-      basePrice: item.basePrice,
+      copyrightFee: inferredCopyright,
+      usageFee: inferredUsage,
       description: item.description,
       blurLevel: item.blurPercentage || 0,
       password: item.password || '',
@@ -266,7 +274,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       category: Category.OUTERWEAR,
       ageGroup: AgeGroup.KIDS,
       visibility: Visibility.PUBLIC,
-      basePrice: 0,
+      copyrightFee: 0,
+      usageFee: 0,
       description: '',
       blurLevel: 0,
       password: '',
@@ -432,13 +441,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                     {items.map(item => (
                       <div key={item.id} className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow">
                         <div className="relative aspect-[4/5] bg-neutral-100">
-                          <img
+                          <WatermarkedImage
                             src={item.coverImage}
                             alt={item.title}
-                            className="w-full h-full object-cover"
-                            style={{
-                              filter: item.visibility === Visibility.SEMI_PUBLIC ? 'blur(2px)' : 'none'
-                            }}
+                            className="w-full h-full"
+                            isSemiPublic={item.visibility === Visibility.SEMI_PUBLIC}
+                            blurPercentage={item.blurPercentage}
                           />
                           <div className="absolute top-2 right-2 flex gap-2">
                             <span className="px-2 py-1 bg-white/90 text-xs font-medium rounded">
@@ -457,7 +465,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                           <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
                           <p className="text-sm text-neutral-500 mb-3 line-clamp-2">{item.description}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold">¥{item.basePrice}</span>
+                            <div className="text-sm text-neutral-700">
+                              <div>版权费: ¥{(item.copyrightFee ?? item.basePrice ?? 0)}</div>
+                              <div>使用权费: ¥{(item.usageFee ?? 0)}</div>
+                            </div>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleEdit(item)}
@@ -509,6 +520,21 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                           >
                             {lang === 'zh' ? '移除图片' : 'Remove Image'}
                           </button>
+                          {/* Homepage preview (matches how it will appear on the site) */}
+                          <div className="mt-4">
+                            <p className="text-xs text-neutral-500 mb-2">{lang === 'zh' ? '首页预览' : 'Homepage Preview'}</p>
+                            <div className="w-full max-w-xs mx-auto rounded overflow-hidden border border-gray-200">
+                              <div className="aspect-[4/5] bg-neutral-100">
+                                <WatermarkedImage
+                                  src={formData.imagePreview}
+                                  alt={formData.title || 'homepage-preview'}
+                                  className="w-full h-full"
+                                  isSemiPublic={formData.visibility === Visibility.SEMI_PUBLIC}
+                                  blurPercentage={formData.visibility === Visibility.SEMI_PUBLIC ? formData.blurLevel : 0}
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       ) : (
                         <div className="py-12">
@@ -651,13 +677,25 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                     <label className="block text-sm font-medium text-neutral-700 mb-2">
                       {t.form.basePrice}
                     </label>
-                    <input
-                      type="number"
-                      value={formData.basePrice}
-                      onChange={(e) => setFormData({ ...formData, basePrice: Number(e.target.value) })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none"
-                      required
-                    />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="number"
+                        value={formData.copyrightFee}
+                        onChange={(e) => setFormData({ ...formData, copyrightFee: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none"
+                        placeholder={lang === 'zh' ? '版权费' : 'Copyright Fee'}
+                        required
+                      />
+                      <input
+                        type="number"
+                        value={formData.usageFee}
+                        onChange={(e) => setFormData({ ...formData, usageFee: Number(e.target.value) })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none"
+                        placeholder={lang === 'zh' ? '使用权费' : 'Usage Fee'}
+                        required
+                      />
+                    </div>
+                    <p className="text-xs text-neutral-400 mt-2">{lang === 'zh' ? '总价 = 版权费 + 使用权费' : 'Total = Copyright + Usage'}</p>
                   </div>
                 </div>
 

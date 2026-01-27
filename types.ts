@@ -31,7 +31,10 @@ export interface PortfolioItem {
   category: Category;
   ageGroup: AgeGroup;
   visibility: Visibility;
-  basePrice: number;
+  // 价格拆分：版权费与使用权费（保留 basePrice 兼容旧字段）
+  copyrightFee?: number;
+  usageFee?: number;
+  basePrice?: number;
   description: string;
   addons: Addon[];
   password?: string; // 半公开图片的访问密码

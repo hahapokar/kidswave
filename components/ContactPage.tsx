@@ -13,7 +13,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onClose, lang }) => {
       phone: '手机',
       email: '邮箱',
       wechat: '微信',
-      social: '社交媒体',
+      social: 'WhatsApp',
       close: '关闭'
     },
     en: {
@@ -22,7 +22,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onClose, lang }) => {
       phone: 'Phone',
       email: 'Email',
       wechat: 'WeChat',
-      social: 'Social Media',
+      social: 'WhatsApp',
       close: 'Close'
     }
   };

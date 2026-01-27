@@ -6,14 +6,17 @@ interface WatermarkedImageProps {
   alt: string;
   className?: string;
   isSemiPublic?: boolean;
+  blurPercentage?: number;
 }
 
-const WatermarkedImage: React.FC<WatermarkedImageProps> = ({ src, alt, className = "", isSemiPublic = false }) => {
+const WatermarkedImage: React.FC<WatermarkedImageProps> = ({ src, alt, className = "", isSemiPublic = false, blurPercentage = 0 }) => {
+  const blurPx = (blurPercentage || 0) / 10;
   return (
     <div className={`relative overflow-hidden group ${className}`}>
       <img 
         src={src} 
         alt={alt} 
+        style={{ filter: isSemiPublic && blurPx > 0 ? `blur(${blurPx}px)` : undefined }}
         className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 ${isSemiPublic ? 'opacity-60' : ''}`}
         loading="lazy"
       />

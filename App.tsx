@@ -368,6 +368,7 @@ const App: React.FC = () => {
                 alt={selectedItem.title} 
                 className="h-full w-full" 
                 isSemiPublic={selectedItem.visibility === Visibility.SEMI_PUBLIC}
+                blurPercentage={selectedItem.blurPercentage}
               />
             </div>
 
@@ -383,7 +384,13 @@ const App: React.FC = () => {
                   <p className="text-neutral-500 leading-relaxed">{selectedItem.description}</p>
                 </div>
 
-                <PriceCalculator basePrice={selectedItem.basePrice} addons={selectedItem.addons} lang={lang} />
+                <PriceCalculator 
+                  copyrightFee={selectedItem.copyrightFee}
+                  usageFee={selectedItem.usageFee}
+                  basePrice={selectedItem.basePrice}
+                  addons={selectedItem.addons}
+                  lang={lang} 
+                />
 
                 {selectedItem.visibility === Visibility.EXCLUSIVE ? (
                   <>
@@ -414,7 +421,7 @@ const App: React.FC = () => {
                       <span>{lang === 'zh' ? '下载高清方案 (DOWNLOAD HI-RES)' : 'Download Hi-Res'}</span>
                     </button>
 
-                    {/* 如果是半公开且已解锁，显示下载原图按钮 */}
+                    {/* 如果是半公开且已解锁，显示按钮 */}
                     {selectedItem.visibility === Visibility.SEMI_PUBLIC && 
                      imagePasswordUnlocked.has(selectedItem.id) && 
                      selectedItem.originalImage && (
@@ -423,7 +430,7 @@ const App: React.FC = () => {
                         download={`${selectedItem.title}-original.jpg`}
                         className="block w-full py-4 bg-amber-600 text-white hover:bg-amber-700 transition-all text-xs tracking-widest uppercase font-bold text-center"
                       >
-                        {lang === 'zh' ? '下载原图 (DOWNLOAD ORIGINAL)' : 'Download Original'}
+                        {lang === 'zh' ? '仅购买使用权 (DOWNLOAD ORIGINAL)' : 'Download Original'}
                       </a>
                     )}
 

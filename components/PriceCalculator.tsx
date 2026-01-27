@@ -3,12 +3,14 @@ import React, { useState } from 'react';
 import { Addon } from '../types';
 
 interface PriceCalculatorProps {
-  basePrice: number;
+  basePrice?: number;
+  copyrightFee?: number;
+  usageFee?: number;
   addons: Addon[];
   lang: 'zh' | 'en';
 }
 
-const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice, addons, lang }) => {
+const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice = 0, copyrightFee = 0, usageFee = 0, addons, lang }) => {
   const [includeBasePrice, setIncludeBasePrice] = useState(true);
   const [selectedServices, setSelectedServices] = useState<Set<number>>(new Set());
 
@@ -26,15 +28,15 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice, addons, la
       title: '价格估算工具',
       baseForm: '作品基础形式 (A)',
       services: '增值服务',
-      estimatedTotal: '预计总计 (ESTIMATED TOTAL)',
-      finalNote: '* 最终价格以正式合同为准'
+      estimatedTotal: '总计 (ESTIMATED TOTAL)',
+      finalNote: ''
     },
     en: {
       title: 'Price Calculator',
       baseForm: 'Base Design (A)',
       services: 'Additional Services',
-      estimatedTotal: 'Estimated Total',
-      finalNote: '* Final price subject to formal contract'
+      estimatedTotal: 'Total',
+      finalNote: ''
     }
   };
 
@@ -48,7 +50,8 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice, addons, la
   };
 
   const servicesTotal = Array.from(selectedServices).reduce((acc, idx) => acc + allServices[idx].price, 0);
-  const total = (includeBasePrice ? basePrice : 0) + servicesTotal;
+  const computedBase = (copyrightFee || usageFee) ? (copyrightFee + usageFee) : basePrice;
+  const total = (includeBasePrice ? computedBase : 0) + servicesTotal;
 
   return (
     <div className="bg-white border border-gray-100 p-8 rounded-lg shadow-sm">
@@ -68,7 +71,7 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice, addons, la
               {t.baseForm}
             </span>
           </div>
-          <span className="text-base font-bold text-gray-900">¥{basePrice.toLocaleString()}</span>
+          <span className="text-base font-bold text-gray-900">¥{computedBase.toLocaleString()}</span>
         </label>
 
         {/* 增值服务标题 */}

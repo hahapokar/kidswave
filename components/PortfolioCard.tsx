@@ -23,6 +23,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick }) => {
           alt={item.title} 
           className="w-full h-full"
           isSemiPublic={isSemiPublic}
+          blurPercentage={item.blurPercentage}
         />
         
         {/* Badges */}
@@ -47,7 +48,6 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({ item, onClick }) => {
         <h3 className="text-sm font-medium text-neutral-800 group-hover:underline underline-offset-4">{item.title}</h3>
         <div className="flex justify-between items-center">
           <span className="text-xs text-neutral-400">{item.ageGroup}</span>
-          <span className="text-xs font-medium text-neutral-600">FROM ¥{item.basePrice}</span>
         </div>
       </div>
     </div>
