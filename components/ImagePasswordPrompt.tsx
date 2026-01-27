@@ -47,7 +47,7 @@ const ImagePasswordPrompt: React.FC<ImagePasswordPromptProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === correctPassword) {
+    if (password.trim() === (correctPassword || '').trim()) {
       setError(false);
       onSuccess();
     } else {

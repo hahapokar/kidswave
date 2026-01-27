@@ -20,6 +20,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
     // 拆分价格：版权费 + 使用权费
     copyrightFee: 0,
     usageFee: 0,
+    designInspiration: '',
+    designHighlights: '',
+    applicableScenarios: '',
+    sizeRange: '',
+    fabricSuggestions: '',
     description: '',
     blurLevel: 0,
     password: '',
@@ -209,6 +214,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       copyrightFee: formData.copyrightFee,
       usageFee: formData.usageFee,
       basePrice: (formData.copyrightFee || 0) + (formData.usageFee || 0),
+      designInspiration: formData.designInspiration,
+      designHighlights: formData.designHighlights,
+      applicableScenarios: formData.applicableScenarios,
+      sizeRange: formData.sizeRange,
+      fabricSuggestions: formData.fabricSuggestions,
       description: formData.description,
       blurPercentage: formData.visibility === Visibility.SEMI_PUBLIC ? formData.blurLevel : 0,
       password: formData.visibility === Visibility.SEMI_PUBLIC ? formData.password : undefined,
@@ -258,6 +268,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       copyrightFee: inferredCopyright,
       usageFee: inferredUsage,
       description: item.description,
+      designInspiration: item.designInspiration || '',
+      designHighlights: item.designHighlights || '',
+      applicableScenarios: item.applicableScenarios || '',
+      sizeRange: item.sizeRange || '',
+      fabricSuggestions: item.fabricSuggestions || '',
       blurLevel: item.blurPercentage || 0,
       password: item.password || '',
       assignedUsers: item.assignedUsers || [],
@@ -276,6 +291,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
       visibility: Visibility.PUBLIC,
       copyrightFee: 0,
       usageFee: 0,
+      designInspiration: '',
+      designHighlights: '',
+      applicableScenarios: '',
+      sizeRange: '',
+      fabricSuggestions: '',
       description: '',
       blurLevel: 0,
       password: '',
@@ -788,12 +808,41 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                   <label className="block text-sm font-medium text-neutral-700 mb-2">
                     {t.form.description}
                   </label>
+                  <p className="text-xs text-neutral-500 mb-2">{lang === 'zh' ? '请按下面的顺序填写：设计灵感 - 设计亮点 - 适用场景 - 尺码范围 - 面料建议。每项单独段落以便详情页展示。' : 'Please fill following sections in order: Inspiration - Highlights - Applicable Scenarios - Size Range - Fabric Suggestions. Keep each as separate paragraph.'}</p>
                   <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={4}
+                    value={formData.designInspiration}
+                    onChange={(e) => setFormData({ ...formData, designInspiration: e.target.value })}
+                    rows={2}
+                    placeholder={lang === 'zh' ? '设计灵感（单段）' : 'Design Inspiration'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none resize-none mb-3"
+                  />
+                  <textarea
+                    value={formData.designHighlights}
+                    onChange={(e) => setFormData({ ...formData, designHighlights: e.target.value })}
+                    rows={2}
+                    placeholder={lang === 'zh' ? '设计亮点（单段）' : 'Design Highlights'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none resize-none mb-3"
+                  />
+                  <textarea
+                    value={formData.applicableScenarios}
+                    onChange={(e) => setFormData({ ...formData, applicableScenarios: e.target.value })}
+                    rows={2}
+                    placeholder={lang === 'zh' ? '适用场景（单段）' : 'Applicable Scenarios'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none resize-none mb-3"
+                  />
+                  <input
+                    type="text"
+                    value={formData.sizeRange}
+                    onChange={(e) => setFormData({ ...formData, sizeRange: e.target.value })}
+                    placeholder={lang === 'zh' ? '尺码范围，例如：0-3岁/90-120cm' : 'Size Range, e.g., 0-3yrs / 90-120cm'}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none mb-3"
+                  />
+                  <textarea
+                    value={formData.fabricSuggestions}
+                    onChange={(e) => setFormData({ ...formData, fabricSuggestions: e.target.value })}
+                    rows={2}
+                    placeholder={lang === 'zh' ? '面料建议（单段）' : 'Fabric Suggestions'}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-neutral-900 focus:border-transparent outline-none resize-none"
-                    required
                   />
                 </div>
 

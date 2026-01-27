@@ -49,7 +49,7 @@ const PriceCalculator: React.FC<PriceCalculatorProps> = ({ basePrice = 0, copyri
     setSelectedServices(next);
   };
 
-  const servicesTotal = Array.from(selectedServices).reduce((acc, idx) => acc + allServices[idx].price, 0);
+  const servicesTotal: number = (Array.from(selectedServices.values()) as number[]).reduce((acc: number, idx: number) => acc + allServices[idx].price, 0);
   const computedBase = (copyrightFee || usageFee) ? (copyrightFee + usageFee) : basePrice;
   const total = (includeBasePrice ? computedBase : 0) + servicesTotal;
 

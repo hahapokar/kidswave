@@ -175,7 +175,48 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ user, lang, onLogout }) =
                     {selectedItem.category}
                   </span>
                   <h2 className="text-3xl font-bold serif-font mb-4">{selectedItem.title}</h2>
-                  <p className="text-neutral-600 leading-relaxed">{selectedItem.description}</p>
+                  {(
+                    selectedItem.designInspiration ||
+                    selectedItem.designHighlights ||
+                    selectedItem.applicableScenarios ||
+                    selectedItem.sizeRange ||
+                    selectedItem.fabricSuggestions
+                  ) ? (
+                    <div className="space-y-3 text-neutral-600 leading-relaxed">
+                      {selectedItem.designInspiration && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '设计灵感' : 'Design Inspiration'}</h4>
+                          <p>{selectedItem.designInspiration}</p>
+                        </div>
+                      )}
+                      {selectedItem.designHighlights && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '设计亮点' : 'Highlights'}</h4>
+                          <p>{selectedItem.designHighlights}</p>
+                        </div>
+                      )}
+                      {selectedItem.applicableScenarios && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '适用场景' : 'Applicable Scenarios'}</h4>
+                          <p>{selectedItem.applicableScenarios}</p>
+                        </div>
+                      )}
+                      {selectedItem.sizeRange && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '尺码范围' : 'Size Range'}</h4>
+                          <p>{selectedItem.sizeRange}</p>
+                        </div>
+                      )}
+                      {selectedItem.fabricSuggestions && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '面料建议' : 'Fabric Suggestions'}</h4>
+                          <p>{selectedItem.fabricSuggestions}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-neutral-600 leading-relaxed">{selectedItem.description}</p>
+                  )}
                 </div>
 
                 <div className="border-t border-gray-200 pt-6">

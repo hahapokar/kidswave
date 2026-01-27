@@ -77,11 +77,14 @@ const App: React.FC = () => {
 
   // 过滤逻辑
   const filteredItems = useMemo(() => {
-    return portfolioItems.filter(item => {
-      const matchCat = selectedCategory === 'ALL' || item.category === selectedCategory;
-      const matchVis = selectedVisibility === 'ALL' || item.visibility === selectedVisibility;
-      return matchCat && matchVis;
-    });
+    // Only filter by category on homepage; order by visibility: PUBLIC first, EXCLUSIVE next, SEMI_PUBLIC last
+    const list = portfolioItems.filter(item => selectedCategory === 'ALL' || item.category === selectedCategory);
+    const orderValue = (it: PortfolioItem) => {
+      if (it.visibility === Visibility.PUBLIC) return 0;
+      if (it.visibility === Visibility.EXCLUSIVE) return 1;
+      return 2; // SEMI_PUBLIC
+    };
+    return list.sort((a, b) => orderValue(a) - orderValue(b));
   }, [selectedCategory, selectedVisibility, portfolioItems]);
 
   const handleCardClick = (item: PortfolioItem) => {
@@ -320,24 +323,7 @@ const App: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">
-                    {lang === 'zh' ? 'Visibility (授权级别)' : 'Visibility Level'}
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    {[Visibility.PUBLIC, Visibility.SEMI_PUBLIC].map(vis => (
-                      <button
-                        key={vis}
-                        onClick={() => setSelectedVisibility(vis as any)}
-                        className={`px-6 py-2 text-xs tracking-widest uppercase transition-all border ${
-                          selectedVisibility === vis ? 'bg-neutral-900 text-white border-neutral-900' : 'bg-transparent text-neutral-500 border-neutral-200 hover:border-neutral-400'
-                        }`}
-                      >
-                        {vis}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                {/* Visibility controls removed - homepage shows category filter only */}
               </div>
             </section>
 
@@ -381,7 +367,48 @@ const App: React.FC = () => {
                     <span className="text-xs uppercase tracking-widest font-bold text-neutral-400">{selectedItem.ageGroup}</span>
                   </div>
                   <h2 className="text-3xl font-bold serif-font text-neutral-900 mb-4">{selectedItem.title}</h2>
-                  <p className="text-neutral-500 leading-relaxed">{selectedItem.description}</p>
+                  {(
+                    selectedItem.designInspiration ||
+                    selectedItem.designHighlights ||
+                    selectedItem.applicableScenarios ||
+                    selectedItem.sizeRange ||
+                    selectedItem.fabricSuggestions
+                  ) ? (
+                    <div className="space-y-3 text-neutral-600 leading-relaxed">
+                      {selectedItem.designInspiration && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '设计灵感' : 'Design Inspiration'}</h4>
+                          <p>{selectedItem.designInspiration}</p>
+                        </div>
+                      )}
+                      {selectedItem.designHighlights && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '设计亮点' : 'Highlights'}</h4>
+                          <p>{selectedItem.designHighlights}</p>
+                        </div>
+                      )}
+                      {selectedItem.applicableScenarios && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '适用场景' : 'Applicable Scenarios'}</h4>
+                          <p>{selectedItem.applicableScenarios}</p>
+                        </div>
+                      )}
+                      {selectedItem.sizeRange && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '尺码范围' : 'Size Range'}</h4>
+                          <p>{selectedItem.sizeRange}</p>
+                        </div>
+                      )}
+                      {selectedItem.fabricSuggestions && (
+                        <div>
+                          <h4 className="font-semibold">{lang === 'zh' ? '面料建议' : 'Fabric Suggestions'}</h4>
+                          <p>{selectedItem.fabricSuggestions}</p>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-neutral-500 leading-relaxed">{selectedItem.description}</p>
+                  )}
                 </div>
 
                 <PriceCalculator 

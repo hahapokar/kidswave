@@ -36,6 +36,12 @@ export interface PortfolioItem {
   usageFee?: number;
   basePrice?: number;
   description: string;
+  // 结构化设计说明
+  designInspiration?: string;
+  designHighlights?: string;
+  applicableScenarios?: string;
+  sizeRange?: string;
+  fabricSuggestions?: string;
   addons: Addon[];
   password?: string; // 半公开图片的访问密码
   assignedUsers?: string[]; // 专属定制图片分配给哪些用户（用户邮箱列表）
