@@ -7,10 +7,8 @@ import PriceCalculator from './components/PriceCalculator';
 import WatermarkedImage from './components/WatermarkedImage';
 import ContactPage from './components/ContactPage';
 import CustomizationForm from './components/CustomizationForm';
-import UserAuth from './components/UserAuth';
 import AdminPanel from './components/AdminPanel';
 import ImagePasswordPrompt from './components/ImagePasswordPrompt';
-import UserDashboard from './components/UserDashboard';
 import DesignerPage from './components/DesignerPage';import { translateCategory, translateAgeGroup } from './utils/translations';
 const App: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'ALL'>('ALL');
@@ -38,10 +36,6 @@ const App: React.FC = () => {
   
   // 移动端菜单状态
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
-  // 用户登录状态
-  const [showUserAuth, setShowUserAuth] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
   
   // 专属定制弹窗状态
   const [showCustomization, setShowCustomization] = useState(false);
@@ -131,14 +125,8 @@ const App: React.FC = () => {
         setShowImagePasswordPrompt(true);
       }
     } else if (item.visibility === Visibility.EXCLUSIVE) {
-      // 专属作品需要用户登录且被分配
-      if (currentUser && item.assignedUsers?.includes(currentUser.email)) {
-        setSelectedItem(item);
-      } else {
-        alert(lang === 'zh' 
-          ? '此作品为专属内容，请登录并确认您有访问权限' 
-          : 'This is exclusive content. Please login and verify access.');
-      }
+      // 专属作品直接显示，联系设计师定制
+      setSelectedItem(item);
     } else {
       // 公开作品直接显示
       setSelectedItem(item);
@@ -148,11 +136,6 @@ const App: React.FC = () => {
   const handleImagePasswordSuccess = (itemId: string) => {
     setImagePasswordUnlocked(prev => new Set(prev).add(itemId));
     setShowImagePasswordPrompt(false);
-  };
-
-  const handleUserLoginSuccess = (user: User) => {
-    setCurrentUser(user);
-    setShowUserAuth(false);
   };
 
   const handleViewerPasswordSubmit = (e: React.FormEvent) => {
@@ -262,14 +245,6 @@ const App: React.FC = () => {
             >
               {lang === 'zh' ? 'EN' : '中文'}
             </button>
-            
-            <button 
-              onClick={() => setShowUserAuth(true)}
-              className="px-5 py-2.5 bg-neutral-900 text-white hover:bg-black transition-all flex items-center space-x-2"
-            >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              <span>{currentUser ? (lang === 'zh' ? `你好, ${currentUser.name}` : `Hi, ${currentUser.name}`) : (lang === 'zh' ? '用户登录' : 'Login')}</span>
-            </button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -326,18 +301,6 @@ const App: React.FC = () => {
             >
               {lang === 'zh' ? 'EN' : '中文'}
             </button>
-            <button 
-              onClick={() => {
-                setShowUserAuth(true);
-                setShowMobileMenu(false);
-              }}
-              className="w-full py-3 bg-neutral-900 text-white text-sm uppercase tracking-widest flex items-center justify-center space-x-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>{currentUser ? (lang === 'zh' ? `你好, ${currentUser.name}` : `Hi, ${currentUser.name}`) : (lang === 'zh' ? '用户登录' : 'Login')}</span>
-            </button>
           </div>
         )}
       </header>
@@ -353,8 +316,6 @@ const App: React.FC = () => {
             </button>
             <DesignerPage lang={lang} />
           </div>
-        ) : currentUser ? (
-          <UserDashboard user={currentUser} lang={lang} onLogout={() => setCurrentUser(null)} />
         ) : (
           <>
             {/* Filters */}
@@ -633,15 +594,6 @@ const App: React.FC = () => {
       {/* Contact Page Modal */}
       {showContactPage && (
         <ContactPage onClose={() => setShowContactPage(false)} lang={lang} />
-      )}
-
-      {/* User Auth Modal */}
-      {showUserAuth && (
-        <UserAuth 
-          onClose={() => setShowUserAuth(false)} 
-          onLoginSuccess={handleUserLoginSuccess}
-          lang={lang} 
-        />
       )}
 
       {/* Image Password Prompt for Semi-Public Items */}
