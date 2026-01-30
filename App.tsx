@@ -635,7 +635,7 @@ const App: React.FC = () => {
               <h3 className="text-xl font-bold">{lang === 'zh' ? '购买高清图片' : 'Purchase Hi-Res Image'}</h3>
               <button onClick={() => setShowPaymentModal(false)} className="text-neutral-500">关闭</button>
             </div>
-            <p className="text-sm text-neutral-600 mb-4">{lang === 'zh' ? '使用支付宝或微信扫描下方二维码支付，支付完成后点击“我已支付”。' : 'Scan the QR code with Alipay or WeChat to pay. After payment click "I have paid".'}</p>
+            <p className="text-sm text-neutral-600 mb-4">{lang === 'zh' ? '请在顶端导航栏“联系我们”联系设计师获取查看密码' : 'Scan the QR code with Alipay or WeChat to pay. After payment click "I have paid".'}</p>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="p-6 bg-neutral-100 flex flex-col items-center">
                 <div className="w-40 h-40 bg-white border flex items-center justify-center">支付宝二维码</div>

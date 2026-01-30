@@ -28,7 +28,7 @@ const ImagePasswordPrompt: React.FC<ImagePasswordPromptProps> = ({
       unlock: '解锁查看',
       cancel: '取消',
       errorMsg: '密码错误，请重试',
-      hint: '提示：如果您已支付费用，密码已通过邮件/微信发送给您'
+      hint: '提示：如果您已支付费用，密码会通过微信发送给您'
     },
     en: {
       title: 'Enter Access Password',
