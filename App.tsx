@@ -696,14 +696,14 @@ const App: React.FC = () => {
             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Collaboration</p>
             <div className="space-y-2 text-sm text-neutral-600">
               <p>Business: myvetee@126.com</p>
-              <p>Studio: 广州市</p>
+              <p>Studio: 中国广东省广州市</p>
             </div>
           </div>
           <div className="space-y-6">
             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Copyright</p>
             <div className="space-y-2 text-sm text-neutral-500">
               <p>© 2026 KIDSWAVE. All Rights Reserved.</p>
-              <p className="text-xs">网站受内容完整性保护，未经授权禁止克隆。所有作品源文件托管于加密 R2 服务器。</p>
+              <p className="text-xs">网站受内容完整性保护，未经授权禁止克隆。</p>
               <button 
                 onClick={() => setShowAdminLogin(true)}
                 className="text-neutral-200 hover:text-neutral-400 transition-colors text-[9px] uppercase tracking-widest mt-4"
