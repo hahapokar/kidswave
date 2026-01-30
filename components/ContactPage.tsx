@@ -6,6 +6,38 @@ interface ContactPageProps {
 }
 
 const ContactPage: React.FC<ContactPageProps> = ({ onClose, lang }) => {
+  const [contactInfo, setContactInfo] = React.useState(() => {
+    try {
+      const stored = localStorage.getItem('contactInfo');
+      return stored ? JSON.parse(stored) : {
+        phone: '+86 138 0000 0000',
+        email: 'design@kidswave.studio',
+        wechat: 'CY_hi2000',
+        wechatQR: '',
+        xiaohongshu: '94117357179'
+      };
+    } catch {
+      return {
+        phone: '+86 138 0000 0000',
+        email: 'design@kidswave.studio',
+        wechat: 'CY_hi2000',
+        wechatQR: '',
+        xiaohongshu: '94117357179'
+      };
+    }
+  });
+
+  React.useEffect(() => {
+    const handleUpdate = () => {
+      const stored = localStorage.getItem('contactInfo');
+      if (stored) {
+        setContactInfo(JSON.parse(stored));
+      }
+    };
+    window.addEventListener('contactInfoUpdated', handleUpdate);
+    return () => window.removeEventListener('contactInfoUpdated', handleUpdate);
+  }, []);
+
   const content = {
     zh: {
       title: '联系我们',
@@ -55,7 +87,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onClose, lang }) => {
                 </svg>
                 <span className="text-xs uppercase tracking-widest text-neutral-400 font-bold">{t.phone}</span>
               </div>
-              <p className="text-lg font-medium text-neutral-800 ml-9">+86 138 0000 0000</p>
+              <p className="text-lg font-medium text-neutral-800 ml-9">{contactInfo.phone}</p>
             </div>
 
             <div className="border-b border-gray-100 pb-6">
@@ -65,7 +97,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onClose, lang }) => {
                 </svg>
                 <span className="text-xs uppercase tracking-widest text-neutral-400 font-bold">{t.email}</span>
               </div>
-              <p className="text-lg font-medium text-neutral-800 ml-9">design@kidswave.studio</p>
+              <p className="text-lg font-medium text-neutral-800 ml-9">{contactInfo.email}</p>
             </div>
 
             <div className="border-b border-gray-100 pb-6">
@@ -75,12 +107,18 @@ const ContactPage: React.FC<ContactPageProps> = ({ onClose, lang }) => {
                 </svg>
                 <span className="text-xs uppercase tracking-widest text-neutral-400 font-bold">{t.wechat}</span>
               </div>
-              <p className="text-lg font-medium text-neutral-800 ml-9">CY_hi2000</p>
+              <p className="text-lg font-medium text-neutral-800 ml-9">{contactInfo.wechat}</p>
               <div className="ml-9 mt-3">
-                <div className="w-32 h-32 bg-neutral-100 border-2 border-dashed border-neutral-300 rounded flex items-center justify-center text-xs text-neutral-400">
-                  {lang === 'zh' ? '微信二维码' : 'WeChat QR'}
-                </div>
-                <p className="text-xs text-neutral-400 mt-2">{lang === 'zh' ? '扫码添加微信' : 'Scan to add WeChat'}</p>
+                {contactInfo.wechatQR ? (
+                  <div>
+                    <img src={contactInfo.wechatQR} className="w-32 h-32 object-contain border border-gray-200 rounded" alt="WeChat QR" />
+                    <p className="text-xs text-neutral-400 mt-2">{lang === 'zh' ? '扫码添加微信' : 'Scan to add WeChat'}</p>
+                  </div>
+                ) : (
+                  <div className="w-32 h-32 bg-neutral-100 border-2 border-dashed border-neutral-300 rounded flex items-center justify-center text-xs text-neutral-400">
+                    {lang === 'zh' ? '微信二维码' : 'WeChat QR'}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -91,7 +129,7 @@ const ContactPage: React.FC<ContactPageProps> = ({ onClose, lang }) => {
                 </svg>
                 <span className="text-xs uppercase tracking-widest text-neutral-400 font-bold">{lang === 'zh' ? '小红书' : 'Xiaohongshu'}</span>
               </div>
-              <p className="text-lg font-medium text-neutral-800 ml-9">94117357179</p>
+              <p className="text-lg font-medium text-neutral-800 ml-9">{contactInfo.xiaohongshu}</p>
             </div>
 
             <div className="pt-2">

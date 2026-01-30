@@ -20,6 +20,28 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   });
   const [editingDesigner, setEditingDesigner] = useState<any>(null);
   const [designerFormData, setDesignerFormData] = useState({ name: '', bio: '', image: '' });
+  
+  // 联系信息管理
+  const [contactInfo, setContactInfo] = useState(() => {
+    try {
+      const stored = localStorage.getItem('contactInfo');
+      return stored ? JSON.parse(stored) : {
+        phone: '+86 138 0000 0000',
+        email: 'design@kidswave.studio',
+        wechat: 'CY_hi2000',
+        wechatQR: '',
+        xiaohongshu: '94117357179'
+      };
+    } catch { 
+      return {
+        phone: '+86 138 0000 0000',
+        email: 'design@kidswave.studio',
+        wechat: 'CY_hi2000',
+        wechatQR: '',
+        xiaohongshu: '94117357179'
+      };
+    }
+  });
   // extend tabs to include settings
   const [settingsTab, setSettingsTab] = useState(false);
   
@@ -560,6 +582,100 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
               </div>
             ) : activeTab === 'settings' ? (
               <div className="p-6">
+                {/* 联系信息管理 */}
+                <div className="mb-12">
+                  <h2 className="text-2xl font-bold mb-6">{lang === 'zh' ? '联系信息管理' : 'Contact Information'}</h2>
+                  <div className="bg-white border border-gray-200 rounded-lg p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '手机' : 'Phone'}</label>
+                        <input 
+                          type="text" 
+                          value={contactInfo.phone} 
+                          onChange={(e) => setContactInfo(prev => ({ ...prev, phone: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '邮箱' : 'Email'}</label>
+                        <input 
+                          type="email" 
+                          value={contactInfo.email} 
+                          onChange={(e) => setContactInfo(prev => ({ ...prev, email: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '微信' : 'WeChat'}</label>
+                        <input 
+                          type="text" 
+                          value={contactInfo.wechat} 
+                          onChange={(e) => setContactInfo(prev => ({ ...prev, wechat: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '小红书' : 'Xiaohongshu'}</label>
+                        <input 
+                          type="text" 
+                          value={contactInfo.xiaohongshu} 
+                          onChange={(e) => setContactInfo(prev => ({ ...prev, xiaohongshu: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-neutral-700 mb-2">{lang === 'zh' ? '微信二维码' : 'WeChat QR Code'}</label>
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                          {contactInfo.wechatQR ? (
+                            <div className="space-y-3">
+                              <img src={contactInfo.wechatQR} className="mx-auto max-h-48 object-contain" alt="WeChat QR" />
+                              <button
+                                type="button"
+                                onClick={() => setContactInfo(prev => ({ ...prev, wechatQR: '' }))}
+                                className="text-sm text-red-600 hover:text-red-700"
+                              >
+                                {lang === 'zh' ? '移除二维码' : 'Remove QR'}
+                              </button>
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="text-neutral-400 mb-2">{lang === 'zh' ? '未上传二维码' : 'No QR uploaded'}</p>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                      setContactInfo(prev => ({ ...prev, wechatQR: reader.result as string }));
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex justify-end mt-6">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem('contactInfo', JSON.stringify(contactInfo));
+                          window.dispatchEvent(new Event('contactInfoUpdated'));
+                          alert(lang === 'zh' ? '联系信息已保存' : 'Contact info saved');
+                        }}
+                        className="px-6 py-3 bg-neutral-900 text-white rounded hover:bg-black"
+                      >
+                        {lang === 'zh' ? '保存联系信息' : 'Save Contact Info'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 设计师管理 */}
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold">{lang === 'zh' ? '设计师管理' : 'Designer Management'}</h2>
                   <button type="button" onClick={() => {

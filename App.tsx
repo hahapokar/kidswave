@@ -216,8 +216,8 @@ const App: React.FC = () => {
               onClick={() => setShowCustomization(true)}
               className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg font-bold flex items-center space-x-2 rounded"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
               <span>{lang === 'zh' ? '专属定制' : 'Customization'}</span>
             </button>
@@ -226,24 +226,30 @@ const App: React.FC = () => {
               onClick={openDesignerPage}
               className="px-5 py-3 border-2 border-neutral-300 hover:border-neutral-900 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-all font-bold flex items-center space-x-2 rounded"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
               </svg>
               <span>{lang === 'zh' ? '设计师' : 'Designers'}</span>
             </button>
             
             <button 
               onClick={() => setShowContactPage(true)}
-              className="hover:text-black transition-colors text-neutral-500"
+              className="px-5 py-3 border-2 border-neutral-300 hover:border-neutral-900 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-all font-bold flex items-center space-x-2 rounded"
             >
-              {lang === 'zh' ? '联系方式' : 'Contact'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>{lang === 'zh' ? '联系方式' : 'Contact'}</span>
             </button>
             
             <button 
               onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
-              className="px-4 py-2 border border-neutral-200 hover:border-neutral-400 transition-all text-neutral-700"
+              className="px-5 py-3 border-2 border-neutral-300 hover:border-neutral-900 text-neutral-700 hover:text-black hover:bg-neutral-50 transition-all font-bold flex items-center space-x-2 rounded"
             >
-              {lang === 'zh' ? 'EN' : '中文'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+              </svg>
+              <span>{lang === 'zh' ? 'EN' : '中文'}</span>
             </button>
           </nav>
 
@@ -270,10 +276,10 @@ const App: React.FC = () => {
                 setShowCustomization(true);
                 setShowMobileMenu(false);
               }}
-              className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm uppercase tracking-widest font-bold flex items-center justify-center space-x-2"
+              className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm uppercase tracking-widest font-bold flex items-center justify-center space-x-2 rounded"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
               </svg>
               <span>{lang === 'zh' ? '专属定制' : 'Customization'}</span>
             </button>
@@ -282,24 +288,33 @@ const App: React.FC = () => {
                 openDesignerPage();
                 setShowMobileMenu(false);
               }}
-              className="w-full text-left py-3 text-sm uppercase tracking-widest hover:text-black transition-colors"
+              className="w-full py-3 border-2 border-neutral-300 hover:border-neutral-900 text-neutral-700 hover:text-black text-sm uppercase tracking-widest font-bold flex items-center justify-center space-x-2 rounded"
             >
-              {lang === 'zh' ? '设计师简介' : 'Designers'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+              <span>{lang === 'zh' ? '设计师简介' : 'Designers'}</span>
             </button>
             <button 
               onClick={() => {
                 setShowContactPage(true);
                 setShowMobileMenu(false);
               }}
-              className="w-full text-left py-3 text-sm uppercase tracking-widest hover:text-black transition-colors"
+              className="w-full py-3 border-2 border-neutral-300 hover:border-neutral-900 text-neutral-700 hover:text-black text-sm uppercase tracking-widest font-bold flex items-center justify-center space-x-2 rounded"
             >
-              {lang === 'zh' ? '联系方式' : 'Contact'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>{lang === 'zh' ? '联系方式' : 'Contact'}</span>
             </button>
             <button 
               onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
-              className="w-full text-left py-3 px-4 border border-neutral-200 text-sm uppercase tracking-widest"
+              className="w-full py-3 border-2 border-neutral-300 hover:border-neutral-900 text-neutral-700 hover:text-black text-sm uppercase tracking-widest font-bold flex items-center justify-center space-x-2 rounded"
             >
-              {lang === 'zh' ? 'EN' : '中文'}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+              </svg>
+              <span>{lang === 'zh' ? 'EN' : '中文'}</span>
             </button>
           </div>
         )}
@@ -680,7 +695,7 @@ const App: React.FC = () => {
           <div className="space-y-6">
             <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Collaboration</p>
             <div className="space-y-2 text-sm text-neutral-600">
-              <p>Business: design@kidswave.studio</p>
+              <p>Business: myvetee@126.com</p>
               <p>Studio: 广州市</p>
             </div>
           </div>
