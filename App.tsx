@@ -1,4 +1,5 @@
 
+import { supabase } from './supabaseClient';
 import React, { useState, useMemo, useEffect } from 'react';
 import { MOCK_PORTFOLIO } from './services/mockData';
 import { Category, Visibility, PortfolioItem, User } from './types';
@@ -43,32 +44,55 @@ const App: React.FC = () => {
   // 作品数据（从 localStorage 或 MOCK_PORTFOLIO 加载）
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
 
-  // 加载作品数据
-  useEffect(() => {
-    const loadItems = () => {
-      const savedItems = localStorage.getItem('portfolioItems');
-      if (savedItems) {
-        setPortfolioItems(JSON.parse(savedItems));
-      } else {
-        // 首次访问，使用示范数据并保存到localStorage
-        setPortfolioItems(MOCK_PORTFOLIO);
-        localStorage.setItem('portfolioItems', JSON.stringify(MOCK_PORTFOLIO));
+
+
+// ... 在组件内部替换掉原来的 useEffect
+
+useEffect(() => {
+  // 定义从云端获取数据的函数
+  const fetchPortfolio = async () => {
+    console.log('正在从 Supabase 获取最新作品...');
+    const { data, error } = await supabase
+      .from('portfolio_items')
+      .select('*')
+      .order('id', { ascending: false }); // 按 ID 降序，保证新发布的在前面
+
+    if (error) {
+      console.error('获取数据失败:', error.message);
+    } else if (data && data.length > 0) {
+      setPortfolioItems(data);
+    } else {
+      // 如果云端数据库完全是空的，暂时用 MOCK 数据兜底
+      setPortfolioItems(MOCK_PORTFOLIO);
+    }
+  };
+
+  // 首次进入页面执行获取
+  fetchPortfolio();
+
+  // 2. 核心亮点：开启 Supabase 实时监听 (Realtime)
+  // 这将替代你原来的 window.addEventListener('storage', ...)
+  const channel = supabase
+    .channel('schema-db-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // 监听所有变动（插入、更新、删除）
+        schema: 'public',
+        table: 'portfolio_items'
+      },
+      () => {
+        console.log('检测到云端数据变动，正在同步...');
+        fetchPortfolio(); // 发现变动就重新拉取最新数据
       }
-    };
-    
-    loadItems();
-    
-    // 监听 storage 事件（当其他标签页修改 localStorage 时触发）
-    window.addEventListener('storage', loadItems);
-    
-    // 监听自定义事件（当本页面管理员修改数据时触发）
-    window.addEventListener('portfolioUpdated', loadItems);
-    
-    return () => {
-      window.removeEventListener('storage', loadItems);
-      window.removeEventListener('portfolioUpdated', loadItems);
-    };
-  }, []);
+    )
+    .subscribe();
+
+  // 组件销毁时取消监听
+  return () => {
+    supabase.removeChannel(channel);
+  };
+}, []);
 
   // 过滤逻辑
   const filteredItems = useMemo(() => {
