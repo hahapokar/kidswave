@@ -159,7 +159,28 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
     setEditingItem(null);
     setImageZoom(1);
   };
+// --- 保存：联系方式 (Settings) ---
+  const handleSettingsSave = async () => {
+    setLoading(true);
+    try {
+      // 确保我们是针对 id 为 'contact_info' 的这一行进行更新
+      const { error } = await supabase
+        .from('settings')
+        .upsert({ 
+          ...contactInfo, 
+          id: 'contact_info' 
+        });
 
+      if (error) throw error;
+      
+      alert(lang === 'zh' ? "系统设置已成功同步至云端！" : "Settings synced to cloud!");
+      fetchData(); // 重新拉取一次，确保数据同步
+    } catch (err: any) { 
+      alert("保存失败: " + err.message); 
+    } finally { 
+      setLoading(false); 
+    }
+  };
   return (
     <div className="min-h-screen bg-neutral-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -289,6 +310,81 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
             </div>
           </div>
         )}
+
+        {/* 4. 系统设置 (联系方式) */}
+{activeTab === 'settings' && (
+  <div className="bg-white p-10 rounded-2xl shadow-lg border max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="text-center mb-10">
+      <h2 className="text-2xl font-bold serif-font">全局联系信息管理</h2>
+      <p className="text-xs text-neutral-400 mt-2 uppercase tracking-widest">这些信息将实时同步到首页的 Contact 页面</p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* 基础文字信息 */}
+      <div className="space-y-6">
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">微信号 (WeChat ID)</label>
+          <input type="text" value={contactInfo.wechat || ''} 
+            onChange={e => setContactInfo({...contactInfo, wechat: e.target.value})} 
+            className="w-full p-4 bg-neutral-50 rounded-xl border-none focus:ring-2 focus:ring-black transition-all" placeholder="例如: MyStudio_01" />
+        </div>
+        
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">业务邮箱 (Email)</label>
+          <input type="email" value={contactInfo.email || ''} 
+            onChange={e => setContactInfo({...contactInfo, email: e.target.value})} 
+            className="w-full p-4 bg-neutral-50 rounded-xl border-none focus:ring-2 focus:ring-black transition-all" placeholder="例如: design@studio.com" />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">小红书号 (Xiaohongshu)</label>
+          <input type="text" value={contactInfo.xiaohongshu || ''} 
+            onChange={e => setContactInfo({...contactInfo, xiaohongshu: e.target.value})} 
+            className="w-full p-4 bg-neutral-50 rounded-xl border-none focus:ring-2 focus:ring-black transition-all" placeholder="输入你的小红书ID" />
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-2">联系电话 (Phone)</label>
+          <input type="text" value={contactInfo.phone || ''} 
+            onChange={e => setContactInfo({...contactInfo, phone: e.target.value})} 
+            className="w-full p-4 bg-neutral-50 rounded-xl border-none focus:ring-2 focus:ring-black transition-all" placeholder="+86 138..." />
+        </div>
+      </div>
+
+      {/* 微信二维码上传 */}
+      <div className="flex flex-col items-center justify-center p-6 bg-neutral-50 rounded-2xl border-2 border-dashed border-neutral-200">
+        <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-4">微信收款/联系二维码</label>
+        <div className="w-48 h-48 bg-white rounded-lg shadow-inner mb-4 flex items-center justify-center overflow-hidden border">
+          {contactInfo.wechatQR ? (
+            <img src={contactInfo.wechatQR} className="w-full h-full object-contain" alt="QR Code" />
+          ) : (
+            <div className="text-[10px] text-neutral-300">暂无二维码图片</div>
+          )}
+        </div>
+        <input type="file" accept="image/*" onChange={async (e) => {
+          const file = e.target.files?.[0];
+          if(file) {
+            setLoading(true);
+            try {
+              const url = await uploadFile(file, 'settings');
+              setContactInfo({...contactInfo, wechatQR: url});
+              alert("二维码已上传预览，请点击下方保存生效");
+            } catch (err) { alert("上传失败"); }
+            setLoading(false);
+          }
+        }} className="text-[10px] w-full" />
+      </div>
+    </div>
+
+    <button 
+      onClick={handleSettingsSave} 
+      disabled={loading}
+      className="w-full mt-10 py-5 bg-black text-white rounded-xl font-bold shadow-xl hover:bg-neutral-800 transition-all disabled:bg-gray-400"
+    >
+      {loading ? "正在同步至云端..." : "保存并发布所有设置"}
+    </button>
+  </div>
+)}
       </div>
     </div>
   );
