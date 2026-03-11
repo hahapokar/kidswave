@@ -141,7 +141,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
             {items.map(item => (
               <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm border group">
                 <WatermarkedImage src={item.coverImage} className="aspect-[3/4] w-full object-cover" />
-                <div className="p-4 flex justify-between items-center"><span className="text-sm font-bold truncate">{item.title}</span><div className="flex gap-2"><button onClick={() => { setEditingItem(item); setActiveTab('add'); }} className="text-xs text-blue-600">编辑</button><button onClick={async () => { if(confirm("删除？")) { await supabase.from('portfolio_items').delete().eq('id', item.id); fetchData(); } }} className="text-xs text-red-600">删除</button></div></div>
+                <div className="p-4 flex justify-between items-center"><span className="text-base font-bold truncate">{item.title}</span><div className="flex gap-2"><button onClick={() => { setEditingItem(item); setActiveTab('add'); }} className="text-sm font-semibold text-blue-600">编辑</button><button onClick={async () => { if(confirm("删除？")) { await supabase.from('portfolio_items').delete().eq('id', item.id); fetchData(); } }} className="text-sm font-semibold text-red-600">删除</button></div></div>
               </div>
             ))}
           </div>
@@ -150,13 +150,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         {activeTab === 'add' && (
           <form onSubmit={handlePortfolioSave} className="bg-white p-8 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="space-y-6">
-              <label className="text-xs font-bold text-neutral-400 uppercase">1. 图片缩放预览</label>
+              <label className="text-sm font-bold text-neutral-700 uppercase">1. 图片缩放预览</label>
               <div className="aspect-[3/4] bg-neutral-100 rounded-2xl overflow-hidden relative border-2 border-dashed flex items-center justify-center">
-                {portfolioForm.imagePreview ? <img src={portfolioForm.imagePreview} style={{ transform: `scale(${imageZoom})` }} className="w-full h-full object-cover" /> : <span>选择图片</span>}
+                {portfolioForm.imagePreview ? <img src={portfolioForm.imagePreview} style={{ transform: `scale(${imageZoom})` }} className="w-full h-full object-cover" /> : <span className="text-neutral-700">选择图片</span>}
               </div>
               <input type="range" min="1" max="2" step="0.01" value={imageZoom} onChange={e => setImageZoom(parseFloat(e.target.value))} className="w-full" />
-              <input type="file" accept="image/*" onChange={e => { const file = e.target.files?.[0]; if(file) setPortfolioForm({...portfolioForm, imageFile: file, imagePreview: URL.createObjectURL(file)}); }} className="w-full text-xs" />
-              <div className="pt-4 border-t"><label className="text-xs font-bold text-neutral-400 uppercase">2. 原图 (仅解锁可见)</label><input type="file" onChange={e => { const file = e.target.files?.[0]; if(file) setPortfolioForm({...portfolioForm, originalImageFile: file, originalImagePreview: URL.createObjectURL(file)}); }} className="w-full text-xs" /></div>
+              <input type="file" accept="image/*" onChange={e => { const file = e.target.files?.[0]; if(file) setPortfolioForm({...portfolioForm, imageFile: file, imagePreview: URL.createObjectURL(file)}); }} className="w-full text-base" />
+              <div className="pt-4 border-t"><label className="text-sm font-bold text-neutral-700 uppercase">2. 原图 (仅解锁可见)</label><input type="file" onChange={e => { const file = e.target.files?.[0]; if(file) setPortfolioForm({...portfolioForm, originalImageFile: file, originalImagePreview: URL.createObjectURL(file)}); }} className="w-full text-base" /></div>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -178,9 +178,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
             <div className="bg-white p-6 rounded-2xl border">
               <h2 className="font-bold mb-6">编辑设计师</h2>
               <div className="space-y-4">
-                <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border flex items-center justify-center">{designerForm.imagePreview ? <img src={designerForm.imagePreview} style={{ transform: `scale(${designerImageZoom})` }} className="w-full h-full object-cover" /> : "头像"}</div>
+                <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border flex items-center justify-center text-neutral-700 font-semibold">{designerForm.imagePreview ? <img src={designerForm.imagePreview} style={{ transform: `scale(${designerImageZoom})` }} className="w-full h-full object-cover" /> : "头像"}</div>
                 <input type="range" min="1" max="2" step="0.01" value={designerImageZoom} onChange={e => setDesignerImageZoom(parseFloat(e.target.value))} className="w-full" />
-                <input type="file" onChange={e => { const file = e.target.files?.[0]; if(file) setDesignerForm({...designerForm, imageFile: file, imagePreview: URL.createObjectURL(file)}); }} className="text-xs" />
+                <input type="file" onChange={e => { const file = e.target.files?.[0]; if(file) setDesignerForm({...designerForm, imageFile: file, imagePreview: URL.createObjectURL(file)}); }} className="text-base" />
                 <div className="grid grid-cols-2 gap-2">
                   <input type="text" placeholder="中文名" value={designerForm.name} onChange={e => setDesignerForm({...designerForm, name: e.target.value})} className="p-3 bg-neutral-50 rounded-lg" />
                   <input type="text" placeholder="English Name" value={designerForm.name_en} onChange={e => setDesignerForm({...designerForm, name_en: e.target.value})} className="p-3 bg-neutral-50 rounded-lg" />
@@ -212,9 +212,9 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
               </div>
               <div className="flex flex-col items-center p-6 bg-neutral-50 rounded-2xl border-2 border-dashed">
                 <div className="w-48 h-48 bg-white mb-4 flex items-center justify-center border">
-                  {contactInfo.wechatQR ? <img src={contactInfo.wechatQR} className="w-full h-full object-contain" /> : <span className="text-xs text-neutral-300">暂无二维码</span>}
+                  {contactInfo.wechatQR ? <img src={contactInfo.wechatQR} className="w-full h-full object-contain" /> : <span className="text-sm text-neutral-700 font-semibold">暂无二维码</span>}
                 </div>
-                <input type="file" onChange={async (e) => { const file = e.target.files?.[0]; if(file) { setLoading(true); const url = await uploadFile(file, 'settings'); setContactInfo({...contactInfo, wechatQR: url}); setLoading(false); } }} className="text-[10px]" />
+                <input type="file" onChange={async (e) => { const file = e.target.files?.[0]; if(file) { setLoading(true); const url = await uploadFile(file, 'settings'); setContactInfo({...contactInfo, wechatQR: url}); setLoading(false); } }} className="text-base" />
               </div>
             </div>
             <button onClick={handleSettingsSave} disabled={loading} className="w-full mt-10 py-5 bg-black text-white rounded-xl font-bold">保存设置</button>
@@ -229,11 +229,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                 {messages.map(msg => (
                   <div key={msg.id} className="bg-white p-6 rounded-2xl border group transition-all hover:border-black">
                     <div className="flex justify-between mb-4">
-                      <div><h4 className="font-bold text-lg">{msg.name}</h4><p className="text-[10px] text-neutral-400 uppercase tracking-widest">{new Date(msg.created_at).toLocaleString()}</p></div>
+                      <div><h4 className="font-bold text-lg">{msg.name}</h4><p className="text-xs text-neutral-700 uppercase tracking-widest">{new Date(msg.created_at).toLocaleString()}</p></div>
                       <button onClick={async () => { if(confirm("删除？")) { await supabase.from('messages').delete().eq('id', msg.id); fetchData(); } }} className="text-red-400 opacity-0 group-hover:opacity-100">删除</button>
                     </div>
-                    <div className="bg-blue-50 p-4 rounded-xl mb-4 text-xs font-mono text-blue-600">联系方式: {msg.contact}</div>
-                    <div className="text-neutral-700 text-sm whitespace-pre-wrap">{msg.content}</div>
+                    <div className="bg-blue-50 p-4 rounded-xl mb-4 text-base font-mono text-blue-600">联系方式: {msg.contact}</div>
+                    <div className="text-neutral-800 text-base whitespace-pre-wrap font-normal">{msg.content}</div>
                   </div>
                 ))}
               </div>
