@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import WatermarkedImage from './WatermarkedImage'; 
-import { Category, Visibility, AgeGroup, PortfolioItem } from '../types';
+import { Category, Visibility, AgeGroup, PortfolioItem, Addon } from '../types';
 import { supabase } from '../supabaseClient';
 
 interface AdminPanelProps {
@@ -24,7 +24,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   const [portfolioForm, setPortfolioForm] = useState({
     title: '', category: Category.OUTERWEAR, ageGroup: AgeGroup.KIDS, visibility: Visibility.PUBLIC,
     copyrightFee: 0, usageFee: 0, description: '', designInspiration: '',
-    blurLevel: 0, password: '', imageFile: null as File | null, imagePreview: ''
+    designHighlights: '', applicableScenarios: '', sizeRange: '', fabricSuggestions: '',
+    addons: [] as Addon[], blurLevel: 0, password: '', imageFile: null as File | null, imagePreview: '',
+    highResLink: '', originalImageFile: null as File | null, originalImagePreview: '',
+    assignedUsers: [] as string[]
   });
 
   const [designerForm, setDesignerForm] = useState({ name: '', bio: '', imageFile: null as File | null, imagePreview: '' });
@@ -77,14 +80,23 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         title: portfolioForm.title,
         coverImage: imageUrl,
         category: portfolioForm.category,
+        ageGroup: portfolioForm.ageGroup,
         visibility: portfolioForm.visibility,
         copyrightFee: portfolioForm.copyrightFee,
         usageFee: portfolioForm.usageFee,
         basePrice: portfolioForm.copyrightFee + portfolioForm.usageFee,
         description: portfolioForm.description,
         designInspiration: portfolioForm.designInspiration,
+        designHighlights: portfolioForm.designHighlights,
+        applicableScenarios: portfolioForm.applicableScenarios,
+        sizeRange: portfolioForm.sizeRange,
+        fabricSuggestions: portfolioForm.fabricSuggestions,
+        addons: portfolioForm.addons,
         blurPercentage: portfolioForm.visibility === Visibility.SEMI_PUBLIC ? portfolioForm.blurLevel : 0,
         password: portfolioForm.visibility === Visibility.SEMI_PUBLIC ? portfolioForm.password : null,
+        highResLink: portfolioForm.highResLink,
+        originalImage: portfolioForm.originalImagePreview ? await uploadFile(portfolioForm.originalImageFile!, 'portfolio') : null,
+        assignedUsers: portfolioForm.visibility === Visibility.EXCLUSIVE ? portfolioForm.assignedUsers : null,
       };
 
       const { error } = await supabase
@@ -136,7 +148,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
     setPortfolioForm({
       title: '', category: Category.OUTERWEAR, ageGroup: AgeGroup.KIDS, visibility: Visibility.PUBLIC,
       copyrightFee: 0, usageFee: 0, description: '', designInspiration: '',
-      blurLevel: 0, password: '', imageFile: null, imagePreview: ''
+      designHighlights: '', applicableScenarios: '', sizeRange: '', fabricSuggestions: '',
+      addons: [], blurLevel: 0, password: '', imageFile: null, imagePreview: '',
+      highResLink: '', originalImageFile: null, originalImagePreview: '',
+      assignedUsers: []
     });
     setEditingItem(null);
   };
@@ -166,7 +181,33 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                 <div className="p-4">
                   <h3 className="font-bold truncate">{item.title}</h3>
                   <div className="flex gap-2 mt-4">
-                    <button onClick={() => { setEditingItem(item); setPortfolioForm({...portfolioForm, title: item.title, imagePreview: item.coverImage}); setActiveTab('add'); }} className="text-xs bg-gray-100 px-3 py-1 rounded">编辑</button>
+                    <button onClick={() => { 
+                      setEditingItem(item); 
+                      setPortfolioForm({
+                        title: item.title || '',
+                        category: item.category || Category.OUTERWEAR,
+                        ageGroup: item.ageGroup || AgeGroup.KIDS,
+                        visibility: item.visibility || Visibility.PUBLIC,
+                        copyrightFee: item.copyrightFee || 0,
+                        usageFee: item.usageFee || 0,
+                        description: item.description || '',
+                        designInspiration: item.designInspiration || '',
+                        designHighlights: item.designHighlights || '',
+                        applicableScenarios: item.applicableScenarios || '',
+                        sizeRange: item.sizeRange || '',
+                        fabricSuggestions: item.fabricSuggestions || '',
+                        addons: item.addons || [],
+                        blurLevel: item.blurPercentage || 0,
+                        password: item.password || '',
+                        imageFile: null,
+                        imagePreview: item.coverImage || '',
+                        highResLink: item.highResLink || '',
+                        originalImageFile: null,
+                        originalImagePreview: item.originalImage || '',
+                        assignedUsers: item.assignedUsers || []
+                      }); 
+                      setActiveTab('add'); 
+                    }} className="text-xs bg-gray-100 px-3 py-1 rounded">编辑</button>
                     <button onClick={async () => { if(confirm("确定删除？")) { await supabase.from('portfolio_items').delete().eq('id', item.id); fetchData(); } }} className="text-xs bg-red-50 text-red-600 px-3 py-1 rounded">删除</button>
                   </div>
                 </div>
@@ -190,12 +231,66 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
             <div className="space-y-6">
               <input type="text" placeholder="作品名称" value={portfolioForm.title} onChange={e => setPortfolioForm({...portfolioForm, title: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl" required />
               <div className="grid grid-cols-2 gap-4">
+                <select value={portfolioForm.category} onChange={e => setPortfolioForm({...portfolioForm, category: e.target.value as Category})} className="p-4 bg-neutral-50 rounded-xl">
+                  {Object.values(Category).map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <select value={portfolioForm.ageGroup} onChange={e => setPortfolioForm({...portfolioForm, ageGroup: e.target.value as AgeGroup})} className="p-4 bg-neutral-50 rounded-xl">
+                  {Object.values(AgeGroup).map(a => <option key={a} value={a}>{a}</option>)}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
                 <input type="number" placeholder="版权费" value={portfolioForm.copyrightFee} onChange={e => setPortfolioForm({...portfolioForm, copyrightFee: Number(e.target.value)})} className="p-4 bg-neutral-50 rounded-xl" />
                 <input type="number" placeholder="使用权费" value={portfolioForm.usageFee} onChange={e => setPortfolioForm({...portfolioForm, usageFee: Number(e.target.value)})} className="p-4 bg-neutral-50 rounded-xl" />
               </div>
               <select value={portfolioForm.visibility} onChange={e => setPortfolioForm({...portfolioForm, visibility: e.target.value as Visibility})} className="w-full p-4 bg-neutral-50 rounded-xl">
                 {Object.values(Visibility).map(v => <option key={v} value={v}>{v}</option>)}
               </select>
+              {portfolioForm.visibility === Visibility.SEMI_PUBLIC && (
+                <>
+                  <input type="number" placeholder="模糊程度 (0-100)" value={portfolioForm.blurLevel} onChange={e => setPortfolioForm({...portfolioForm, blurLevel: Number(e.target.value)})} className="w-full p-4 bg-neutral-50 rounded-xl" min="0" max="100" />
+                  <input type="password" placeholder="访问密码" value={portfolioForm.password} onChange={e => setPortfolioForm({...portfolioForm, password: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl" />
+                </>
+              )}
+              {portfolioForm.visibility === Visibility.EXCLUSIVE && (
+                <textarea placeholder="分配用户邮箱 (用逗号分隔)" value={portfolioForm.assignedUsers.join(', ')} onChange={e => setPortfolioForm({...portfolioForm, assignedUsers: e.target.value.split(',').map(s => s.trim()).filter(s => s)})} className="w-full p-4 bg-neutral-50 rounded-xl h-20" />
+              )}
+              <textarea placeholder="作品描述" value={portfolioForm.description} onChange={e => setPortfolioForm({...portfolioForm, description: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
+              <textarea placeholder="设计灵感" value={portfolioForm.designInspiration} onChange={e => setPortfolioForm({...portfolioForm, designInspiration: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
+              <textarea placeholder="设计亮点" value={portfolioForm.designHighlights} onChange={e => setPortfolioForm({...portfolioForm, designHighlights: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
+              <textarea placeholder="适用场景" value={portfolioForm.applicableScenarios} onChange={e => setPortfolioForm({...portfolioForm, applicableScenarios: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
+              <input type="text" placeholder="尺寸范围" value={portfolioForm.sizeRange} onChange={e => setPortfolioForm({...portfolioForm, sizeRange: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl" />
+              <textarea placeholder="面料建议" value={portfolioForm.fabricSuggestions} onChange={e => setPortfolioForm({...portfolioForm, fabricSuggestions: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
+              <input type="url" placeholder="高清链接" value={portfolioForm.highResLink} onChange={e => setPortfolioForm({...portfolioForm, highResLink: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl" />
+              <div>
+                <label className="text-xs font-bold text-gray-400">原图 (半公开用)</label>
+                <input type="file" accept="image/*" onChange={e => {
+                  const file = e.target.files?.[0];
+                  if(file) setPortfolioForm({...portfolioForm, originalImageFile: file, originalImagePreview: URL.createObjectURL(file)});
+                }} className="w-full p-4 bg-neutral-50 rounded-xl" />
+              </div>
+              {/* Addons section */}
+              <div>
+                <label className="text-xs font-bold text-gray-400">附加选项</label>
+                {portfolioForm.addons.map((addon, index) => (
+                  <div key={index} className="flex gap-2 mt-2">
+                    <input type="text" placeholder="标签" value={addon.label} onChange={e => {
+                      const newAddons = [...portfolioForm.addons];
+                      newAddons[index].label = e.target.value;
+                      setPortfolioForm({...portfolioForm, addons: newAddons});
+                    }} className="flex-1 p-2 bg-neutral-50 rounded" />
+                    <input type="number" placeholder="价格" value={addon.price} onChange={e => {
+                      const newAddons = [...portfolioForm.addons];
+                      newAddons[index].price = Number(e.target.value);
+                      setPortfolioForm({...portfolioForm, addons: newAddons});
+                    }} className="w-20 p-2 bg-neutral-50 rounded" />
+                    <button type="button" onClick={() => {
+                      const newAddons = portfolioForm.addons.filter((_, i) => i !== index);
+                      setPortfolioForm({...portfolioForm, addons: newAddons});
+                    }} className="px-2 py-1 bg-red-100 text-red-600 rounded">删</button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => setPortfolioForm({...portfolioForm, addons: [...portfolioForm.addons, { label: '', price: 0 }]})} className="mt-2 px-4 py-2 bg-gray-100 rounded">添加附加选项</button>
+              </div>
               <button type="submit" disabled={loading} className="w-full py-5 bg-black text-white rounded-xl font-bold">
                 {loading ? "正在同步..." : "保存作品至云端"}
               </button>
