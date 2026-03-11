@@ -172,7 +172,7 @@ const App: React.FC = () => {
             <div className="md:w-2/5 p-10 md:p-14 flex flex-col justify-between bg-white">
               <div className="space-y-10">
                 <div>
-                  <span className="text-sm font-black text-neutral-700 tracking-[0.3em] uppercase">{translateCategory(selectedItem.category, lang)}</span>
+                  <span className="text-base font-black text-neutral-700 tracking-[0.3em] uppercase">{translateCategory(selectedItem.category, lang)}</span>
                   <h2 className="text-5xl font-bold serif-font mt-4 tracking-tighter">{lang === 'zh' ? selectedItem.title : ((selectedItem as any).title_en || selectedItem.title)}</h2>
                 </div>
                 <div className="space-y-6 text-lg text-neutral-800 font-normal leading-relaxed">
@@ -180,8 +180,8 @@ const App: React.FC = () => {
                   {(lang === 'zh' ? selectedItem.fabricSuggestions : (selectedItem as any).fabricSuggestions_en) && (<p><strong className="text-black font-bold mr-2">{APP_TRANSLATIONS.fabricLabel[lang]}</strong>{lang === 'zh' ? selectedItem.fabricSuggestions : (selectedItem as any).fabricSuggestions_en}</p>)}
                 </div>
                 <div className="bg-neutral-50 p-8 rounded-2xl border border-neutral-100">
-                  <div className="flex justify-between items-end mb-6"><span className="text-xs font-bold text-neutral-700">{APP_TRANSLATIONS.fixedPrice[lang]}</span><span className="text-4xl font-black">￥{selectedItem.basePrice}</span></div>
-                  <p className="text-xs text-neutral-700 border-t border-neutral-200 pt-6 font-medium">{APP_TRANSLATIONS.copyright[lang]}</p>
+                  <div className="flex justify-between items-end mb-6"><span className="text-sm font-bold text-neutral-700 uppercase">{APP_TRANSLATIONS.fixedPrice[lang]}</span><span className="text-4xl font-black">￥{selectedItem.basePrice}</span></div>
+                  <p className="text-sm text-neutral-700 border-t border-neutral-200 pt-6 font-medium">{APP_TRANSLATIONS.copyright[lang]}</p>
                 </div>
               </div>
               <button onClick={() => {
