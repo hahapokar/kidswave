@@ -41,6 +41,29 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
     originalImageFile: null as File | null, originalImagePreview: ''
   });
 
+  // 当编辑项目改变时，自动填充表单
+  useEffect(() => {
+    if (editingItem) {
+      setPortfolioForm({
+        title: editingItem.title || '',
+        category: editingItem.category as Category || Category.APPAREL,
+        ageGroup: editingItem.ageGroup as AgeGroup || AgeGroup.KIDS,
+        visibility: editingItem.visibility as Visibility || Visibility.PUBLIC,
+        fixedPrice: editingItem.basePrice || 0,
+        description: editingItem.description || '',
+        designInspiration: editingItem.designInspiration || '',
+        sizeRange: editingItem.sizeRange || '',
+        fabricSuggestions: editingItem.fabricSuggestions || '',
+        blurLevel: editingItem.blurPercentage || 0,
+        password: editingItem.password || '',
+        imageFile: null,
+        imagePreview: editingItem.coverImage || '',
+        originalImageFile: null,
+        originalImagePreview: editingItem.originalImage || ''
+      });
+    }
+  }, [editingItem]);
+
   // 设计师表单
   const [designerForm, setDesignerForm] = useState({ name: '', bio: '', imageFile: null as File | null, imagePreview: '' });
 
@@ -262,16 +285,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
               </select>
 
               {portfolioForm.visibility === Visibility.SEMI_PUBLIC && (
-                <div className="flex gap-2">
-                  <input type="number" placeholder="模糊度 %" value={portfolioForm.blurLevel} onChange={e => setPortfolioForm({...portfolioForm, blurLevel: Number(e.target.value)})} className="w-1/3 p-4 bg-neutral-50 rounded-xl" />
-                  <input type="password" placeholder="设置访问密码" value={portfolioForm.password} onChange={e => setPortfolioForm({...portfolioForm, password: e.target.value})} className="flex-1 p-4 bg-neutral-50 rounded-xl" />
-                </div>
+                <>
+                  <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                    <p className="text-sm font-bold text-blue-900">💡 半公开作品说明</p>
+                    <ul className="text-xs text-blue-800 mt-2 space-y-1 list-disc list-inside">
+                      <li>图片将被模糊处理显示在前台</li>
+                      <li>访客需要输入密码才能看到原图</li>
+                      <li>必须上传原图/高清图供解锁查看</li>
+                      <li>所有半公开图片都将显示"kidswave studio"水印</li>
+                    </ul>
+                  </div>
+                  <div className="flex gap-2">
+                    <input type="number" placeholder="模糊度 %" value={portfolioForm.blurLevel} onChange={e => setPortfolioForm({...portfolioForm, blurLevel: Number(e.target.value)})} className="w-1/3 p-4 bg-neutral-50 rounded-xl" />
+                    <input type="password" placeholder="设置访问密码" value={portfolioForm.password} onChange={e => setPortfolioForm({...portfolioForm, password: e.target.value})} className="flex-1 p-4 bg-neutral-50 rounded-xl" />
+                  </div>
+                </>
               )}
 
               <textarea placeholder="设计灵感与说明" value={portfolioForm.designInspiration} onChange={e => setPortfolioForm({...portfolioForm, designInspiration: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-32" />
               
               <button type="submit" disabled={loading} className="w-full py-5 bg-black text-white rounded-xl font-bold shadow-xl hover:bg-neutral-800 disabled:bg-gray-400">
-                {loading ? "正在同步云端..." : "确认发布作品"}
+                {loading ? "正在同步云端..." : (editingItem ? "更新作品" : "确认发布作品")}
               </button>
             </div>
           </form>

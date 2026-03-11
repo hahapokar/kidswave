@@ -34,7 +34,7 @@ const WatermarkedImage: React.FC<WatermarkedImageProps> = ({ src, alt, className
           >
             {Array.from({ length: 6 * 8 }).map((_, i) => (
               <div key={i} className="text-[10px] font-bold uppercase tracking-widest text-white text-center select-none">
-                © DESIGN
+                kidswave studio
               </div>
             ))}
           </div>
