@@ -20,11 +20,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   const [editingItem, setEditingItem] = useState<PortfolioItem | null>(null);
   const [editingDesigner, setEditingDesigner] = useState<any>(null);
 
+  // 图片编辑状态
+  const [imageZoom, setImageZoom] = useState<number>(1);
+  const [designerImageZoom, setDesignerImageZoom] = useState<number>(1);
+
   // 表单草稿状态
   const [portfolioForm, setPortfolioForm] = useState({
-    title: '', category: Category.OUTERWEAR, ageGroup: AgeGroup.KIDS, visibility: Visibility.PUBLIC,
+    title: '', category: Category.APPAREL, ageGroup: AgeGroup.KIDS, visibility: Visibility.PUBLIC,
     copyrightFee: 0, usageFee: 0, description: '', designInspiration: '',
-    designHighlights: '', applicableScenarios: '', sizeRange: '', fabricSuggestions: '',
+    applicableScenarios: '', sizeRange: '', fabricSuggestions: '',
     addons: [] as Addon[], blurLevel: 0, password: '', imageFile: null as File | null, imagePreview: '',
     highResLink: '', originalImageFile: null as File | null, originalImagePreview: '',
     assignedUsers: [] as string[]
@@ -87,7 +91,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         basePrice: portfolioForm.copyrightFee + portfolioForm.usageFee,
         description: portfolioForm.description,
         designInspiration: portfolioForm.designInspiration,
-        designHighlights: portfolioForm.designHighlights,
         applicableScenarios: portfolioForm.applicableScenarios,
         sizeRange: portfolioForm.sizeRange,
         fabricSuggestions: portfolioForm.fabricSuggestions,
@@ -146,14 +149,15 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
   // --- 辅助函数 ---
   const resetPortfolioForm = () => {
     setPortfolioForm({
-      title: '', category: Category.OUTERWEAR, ageGroup: AgeGroup.KIDS, visibility: Visibility.PUBLIC,
+      title: '', category: Category.APPAREL, ageGroup: AgeGroup.KIDS, visibility: Visibility.PUBLIC,
       copyrightFee: 0, usageFee: 0, description: '', designInspiration: '',
-      designHighlights: '', applicableScenarios: '', sizeRange: '', fabricSuggestions: '',
+      applicableScenarios: '', sizeRange: '', fabricSuggestions: '',
       addons: [], blurLevel: 0, password: '', imageFile: null, imagePreview: '',
       highResLink: '', originalImageFile: null, originalImagePreview: '',
       assignedUsers: []
     });
     setEditingItem(null);
+    setImageZoom(1);
   };
 
   return (
@@ -185,14 +189,13 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
                       setEditingItem(item); 
                       setPortfolioForm({
                         title: item.title || '',
-                        category: item.category || Category.OUTERWEAR,
+                        category: item.category || Category.APPAREL,
                         ageGroup: item.ageGroup || AgeGroup.KIDS,
                         visibility: item.visibility || Visibility.PUBLIC,
                         copyrightFee: item.copyrightFee || 0,
                         usageFee: item.usageFee || 0,
                         description: item.description || '',
                         designInspiration: item.designInspiration || '',
-                        designHighlights: item.designHighlights || '',
                         applicableScenarios: item.applicableScenarios || '',
                         sizeRange: item.sizeRange || '',
                         fabricSuggestions: item.fabricSuggestions || '',
@@ -220,13 +223,35 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         {activeTab === 'add' && (
           <form onSubmit={handlePortfolioSave} className="bg-white p-8 rounded-2xl shadow-lg grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="space-y-4">
-              <div className="aspect-[3/4] bg-neutral-50 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden">
-                {portfolioForm.imagePreview ? <img src={portfolioForm.imagePreview} className="w-full h-full object-cover" /> : "点击选择图片"}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-gray-400">作品封面图</label>
+                <div className="aspect-[3/4] bg-neutral-50 rounded-2xl border-2 border-dashed flex items-center justify-center overflow-hidden relative">
+                  {portfolioForm.imagePreview ? (
+                    <div style={{ transform: `scale(${imageZoom})`, transformOrigin: 'center', transition: 'transform 0.2s' }}>
+                      <img src={portfolioForm.imagePreview} className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-400">点击选择图片</div>
+                  )}
+                </div>
+                {portfolioForm.imagePreview && (
+                  <div className="space-y-2">
+                    <label className="text-xs text-gray-400">缩放预览：</label>
+                    <input type="range" min="0.5" max="2" step="0.1" value={imageZoom} onChange={e => setImageZoom(Number(e.target.value))} className="w-full" />
+                    <span className="text-xs text-gray-500">{(imageZoom * 100).toFixed(0)}%</span>
+                  </div>
+                )}
               </div>
-              <input type="file" accept="image/*" onChange={e => {
-                const file = e.target.files?.[0];
-                if(file) setPortfolioForm({...portfolioForm, imageFile: file, imagePreview: URL.createObjectURL(file)});
-              }} />
+              <div>
+                <label className="text-xs font-bold text-gray-400">选择或上传图片</label>
+                <input type="file" accept="image/*" onChange={e => {
+                  const file = e.target.files?.[0];
+                  if(file) {
+                    setPortfolioForm({...portfolioForm, imageFile: file, imagePreview: URL.createObjectURL(file)});
+                    setImageZoom(1);
+                  }
+                }} className="w-full p-3 bg-neutral-50 rounded-xl border border-dashed" />
+              </div>
             </div>
             <div className="space-y-6">
               <input type="text" placeholder="作品名称" value={portfolioForm.title} onChange={e => setPortfolioForm({...portfolioForm, title: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl" required />
@@ -256,7 +281,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
               )}
               <textarea placeholder="作品描述" value={portfolioForm.description} onChange={e => setPortfolioForm({...portfolioForm, description: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
               <textarea placeholder="设计灵感" value={portfolioForm.designInspiration} onChange={e => setPortfolioForm({...portfolioForm, designInspiration: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
-              <textarea placeholder="设计亮点" value={portfolioForm.designHighlights} onChange={e => setPortfolioForm({...portfolioForm, designHighlights: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
               <textarea placeholder="适用场景" value={portfolioForm.applicableScenarios} onChange={e => setPortfolioForm({...portfolioForm, applicableScenarios: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
               <input type="text" placeholder="尺寸范围" value={portfolioForm.sizeRange} onChange={e => setPortfolioForm({...portfolioForm, sizeRange: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl" />
               <textarea placeholder="面料建议" value={portfolioForm.fabricSuggestions} onChange={e => setPortfolioForm({...portfolioForm, fabricSuggestions: e.target.value})} className="w-full p-4 bg-neutral-50 rounded-xl h-24" />
@@ -302,24 +326,64 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ lang }) => {
         {activeTab === 'designers' && (
           <div className="space-y-8">
             <div className="bg-white p-8 rounded-2xl shadow-sm border">
-              <h2 className="text-xl font-bold mb-6">添加/编辑设计师</h2>
+              <h2 className="text-xl font-bold mb-6">{editingDesigner ? '编辑设计师' : '添加设计师'}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <input type="text" placeholder="姓名" value={designerForm.name} onChange={e => setDesignerForm({...designerForm, name: e.target.value})} className="p-4 bg-neutral-50 rounded-xl" />
-                <input type="file" onChange={e => {
-                   const file = e.target.files?.[0];
-                   if(file) setDesignerForm({...designerForm, imageFile: file, imagePreview: URL.createObjectURL(file)});
-                }} />
+                <div className="md:col-span-2 space-y-2">
+                  {designerForm.imagePreview && (
+                    <div>
+                      <label className="text-xs text-gray-400">缩放预览：</label>
+                      <div className="w-32 h-32 mx-auto bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center mb-2">
+                        <img src={designerForm.imagePreview} style={{ transform: `scale(${designerImageZoom})`, transformOrigin: 'center' }} className="w-32 h-32 object-cover rounded-lg" alt="预览" />
+                      </div>
+                      <input type="range" min="0.5" max="2" step="0.1" value={designerImageZoom} onChange={e => setDesignerImageZoom(Number(e.target.value))} className="w-full mb-1" />
+                      <span className="text-xs text-gray-500">{(designerImageZoom * 100).toFixed(0)}%</span>
+                    </div>
+                  )}
+                </div>
+                <input type="text" placeholder="姓名" value={designerForm.name} onChange={e => setDesignerForm({...designerForm, name: e.target.value})} className="p-4 bg-neutral-50 rounded-xl" required />
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 mb-2">头像图片</label>
+                  <input type="file" accept="image/*" onChange={e => {
+                     const file = e.target.files?.[0];
+                     if(file) {
+                       setDesignerForm({...designerForm, imageFile: file, imagePreview: URL.createObjectURL(file)});
+                       setDesignerImageZoom(1);
+                     }
+                  }} className="p-4 bg-neutral-50 rounded-xl w-full" />
+                </div>
                 <textarea placeholder="简介" value={designerForm.bio} onChange={e => setDesignerForm({...designerForm, bio: e.target.value})} className="md:col-span-2 p-4 bg-neutral-50 rounded-xl h-32" />
-                <button onClick={handleDesignerSave} className="md:col-span-2 py-4 bg-black text-white rounded-xl font-bold">保存设计师信息</button>
+                <button onClick={handleDesignerSave} disabled={loading} className="md:col-span-2 py-4 bg-black text-white rounded-xl font-bold hover:bg-neutral-800 disabled:opacity-50">
+                  {loading ? '保存中...' : (editingDesigner ? '更新设计师' : '保存设计师信息')}
+                </button>
+                {editingDesigner && (
+                  <button onClick={() => {
+                    setDesignerForm({ name: '', bio: '', imageFile: null, imagePreview: '' });
+                    setEditingDesigner(null);
+                    setDesignerImageZoom(1);
+                  }} className="md:col-span-2 py-4 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300">
+                    取消编辑
+                  </button>
+                )}
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {designers.map(d => (
-                <div key={d.id} className="bg-white p-4 rounded-xl border flex gap-4 items-center">
-                  <img src={d.image} className="w-16 h-16 rounded-full object-cover" />
-                  <div className="flex-1">
-                    <p className="font-bold">{d.name}</p>
-                    <button onClick={async () => { if(confirm("删除设计师？")) { await supabase.from('designers').delete().eq('id', d.id); fetchData(); } }} className="text-xs text-red-500">删除</button>
+                <div key={d.id} className="bg-white p-4 rounded-xl border">
+                  {d.image && <img src={d.image} className="w-full h-40 rounded-lg object-cover mb-3" />}
+                  <p className="font-bold mb-2">{d.name}</p>
+                  <p className="text-xs text-gray-500 mb-3 line-clamp-2">{d.bio}</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => {
+                      setEditingDesigner(d);
+                      setDesignerForm({
+                        name: d.name || '',
+                        bio: d.bio || '',
+                        imageFile: null,
+                        imagePreview: d.image || ''
+                      });
+                      setDesignerImageZoom(1);
+                    }} className="flex-1 text-xs bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">编辑</button>
+                    <button onClick={async () => { if(confirm("删除设计师？")) { await supabase.from('designers').delete().eq('id', d.id); fetchData(); } }} className="flex-1 text-xs bg-red-50 text-red-600 px-3 py-1 rounded hover:bg-red-100">删除</button>
                   </div>
                 </div>
               ))}

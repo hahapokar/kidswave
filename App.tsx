@@ -33,7 +33,7 @@ const App: React.FC = () => {
 
   // 联系页面状态
   const [showContactPage, setShowContactPage] = useState(false);
-  const [showDesignerPage, setShowDesignerPage] = useState(false);
+  const [showDesignerPage, setShowDesignerPage] = useState(true);
   
   // 移动端菜单状态
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -425,7 +425,6 @@ useEffect(() => {
                   <h2 className="text-3xl font-bold serif-font text-neutral-900 mb-4">{selectedItem.title}</h2>
                   {(
                     selectedItem.designInspiration ||
-                    selectedItem.designHighlights ||
                     selectedItem.applicableScenarios ||
                     selectedItem.sizeRange ||
                     selectedItem.fabricSuggestions
@@ -435,12 +434,6 @@ useEffect(() => {
                         <div>
                           <h4 className="font-semibold">{lang === 'zh' ? '设计灵感' : 'Design Inspiration'}</h4>
                           <p>{selectedItem.designInspiration}</p>
-                        </div>
-                      )}
-                      {selectedItem.designHighlights && (
-                        <div>
-                          <h4 className="font-semibold">{lang === 'zh' ? '设计亮点' : 'Highlights'}</h4>
-                          <p>{selectedItem.designHighlights}</p>
                         </div>
                       )}
                       {selectedItem.applicableScenarios && (

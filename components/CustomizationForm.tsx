@@ -46,7 +46,7 @@ const CustomizationForm: React.FC<CustomizationFormProps> = ({ lang, onClose }) 
       requirements: 'Additional Requirements',
       submit: 'Submit Request',
       close: 'Close',
-      categories: ['Outerwear', 'Loungewear', 'Accessories', 'Other'],
+      categories: ['Apparel', 'Patterns', 'Textiles', 'Other'],
       ageGroups: ['Infant (0-3)', 'Kids (3-6)', 'Juniors (6-12)'],
       styles: ['Minimalist Modern', 'Vintage Classic', 'Sporty Casual', 'Sweet & Cute', 'Trendy']
     }

@@ -1,9 +1,9 @@
 
 export enum Category {
-  OUTERWEAR = '外服',
-  LOUNGEWEAR = '家居服',
-  ACCESSORIES = '服饰',
-  PATTERNS = '花稿'
+  APPAREL = '服装类',
+  PATTERNS = '花稿类',
+  TEXTILES = '纺织品类',
+  OTHER = '更多类别'
 }
 
 export enum Visibility {

@@ -3,10 +3,10 @@ import { Category, AgeGroup } from '../types';
 // Translation utilities for all content
 export const TRANSLATIONS = {
   category: {
-    [Category.OUTERWEAR]: { zh: '外服', en: 'Outerwear' },
-    [Category.LOUNGEWEAR]: { zh: '家居服', en: 'Loungewear' },
-    [Category.ACCESSORIES]: { zh: '服饰', en: 'Accessories' },
-    [Category.PATTERNS]: { zh: '花稿', en: 'Patterns' }
+    [Category.APPAREL]: { zh: '服装类', en: 'Apparel' },
+    [Category.PATTERNS]: { zh: '花稿类', en: 'Patterns' },
+    [Category.TEXTILES]: { zh: '纺织品类', en: 'Textiles' },
+    [Category.OTHER]: { zh: '更多类别', en: 'Other' }
   },
   ageGroup: {
     [AgeGroup.INFANT]: { zh: '婴童', en: 'Infant' },
