@@ -25,28 +25,31 @@ export interface Addon {
 export interface PortfolioItem {
   id: string;
   title: string;
+  title_en?: string; // 英文标题
   coverImage: string;
-  originalImage?: string; // 半公开图片的原图（未模糊版本）
+  originalImage?: string;
   highResLink?: string;
   category: Category;
   ageGroup: AgeGroup;
   visibility: Visibility;
-  // 价格拆分：版权费与使用权费（保留 basePrice 兼容旧字段）
   copyrightFee?: number;
   usageFee?: number;
   basePrice?: number;
   description: string;
-  // 结构化设计说明
+  description_en?: string; // 英文描述
   designInspiration?: string;
+  designInspiration_en?: string; // 英文设计灵感
   designHighlights?: string;
   applicableScenarios?: string;
   sizeRange?: string;
+  sizeRange_en?: string; // 英文尺码范围
   fabricSuggestions?: string;
+  fabricSuggestions_en?: string; // 英文面料建议
   addons: Addon[];
-  password?: string; // 半公开图片的访问密码
-  assignedUsers?: string[]; // 专属定制图片分配给哪些用户（用户邮箱列表）
-  blurPercentage?: number; // 模糊百分比 (0-100)
-  viewCount?: number; // 访问次数统计
+  password?: string;
+  assignedUsers?: string[];
+  blurPercentage?: number;
+  viewCount?: number;
 }
 
 export interface User {
