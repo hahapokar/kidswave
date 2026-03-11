@@ -12,6 +12,22 @@ import ImagePasswordPrompt from './components/ImagePasswordPrompt';
 import DesignerPage from './components/DesignerPage';
 import { translateCategory, translateAgeGroup } from './utils/translations';
 
+// 应用级别翻译
+const APP_TRANSLATIONS = {
+  portfolio: { zh: '作品集', en: 'Portfolio' },
+  designers: { zh: '设计师', en: 'Designers' },
+  contact: { zh: '联系', en: 'Contact' },
+  enterPortfolio: { zh: '查看作品集', en: 'Enter Portfolio' },
+  designerBioDefault: { zh: '致力于探索儿童审美的边界。我们相信设计不仅仅是服装，更是关于成长的叙事逻辑。', en: 'Dedicated to exploring the boundaries of children\'s aesthetics. We believe design is not just about clothing, but a narrative of growth.' },
+  designDescription: { zh: '设计说明：', en: 'Description: ' },
+  fabricLabel: { zh: '建议面料：', en: 'Fabric: ' },
+  fixedPrice: { zh: '意向一口价', en: 'Fixed Price' },
+  copyright: { zh: '© 版权申明：该设计方案版权归设计师本人所有，购买仅获相应授权。', en: '© Copyright Notice: The design copyright belongs to the designer. Purchase grants usage rights only.' },
+  inquireBtn: { zh: '获取授权/联系设计', en: 'Inquire for Rights' },
+  close: { zh: '✕', en: '✕' },
+  adminBtn: { zh: '[管理员]', en: '[Admin]' }
+};
+
 // 定义符合你需求的新类别
 enum Category {
   APPAREL = "服装类",
@@ -154,9 +170,9 @@ const App: React.FC = () => {
         </div>
         
         <nav className="hidden md:flex items-center space-x-12 text-base font-bold tracking-[0.15em] uppercase">
-          <button onClick={() => setShowDesignerPage(false)} className={`py-2 px-4 rounded-lg transition-all ${!showDesignerPage ? 'bg-black text-white' : 'text-neutral-700 hover:bg-neutral-100'}`}>作品集</button>
-          <button onClick={() => setShowDesignerPage(true)} className={`py-2 px-4 rounded-lg transition-all ${showDesignerPage ? 'bg-black text-white' : 'text-neutral-700 hover:bg-neutral-100'}`}>设计师</button>
-          <button onClick={() => setShowContactPage(true)} className="py-2 px-4 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-all">联系</button>
+          <button onClick={() => setShowDesignerPage(false)} className={`py-2 px-4 rounded-lg transition-all ${!showDesignerPage ? 'bg-black text-white' : 'text-neutral-700 hover:bg-neutral-100'}`}>{APP_TRANSLATIONS.portfolio[lang]}</button>
+          <button onClick={() => setShowDesignerPage(true)} className={`py-2 px-4 rounded-lg transition-all ${showDesignerPage ? 'bg-black text-white' : 'text-neutral-700 hover:bg-neutral-100'}`}>{APP_TRANSLATIONS.designers[lang]}</button>
+          <button onClick={() => setShowContactPage(true)} className="py-2 px-4 rounded-lg text-neutral-700 hover:bg-neutral-100 transition-all">{APP_TRANSLATIONS.contact[lang]}</button>
           <button onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} className="bg-neutral-200 text-black px-4 py-2 rounded-lg font-bold hover:bg-neutral-300 transition-all">{lang === 'zh' ? 'EN' : 'CN'}</button>
         </nav>
       </header>
@@ -226,7 +242,7 @@ const App: React.FC = () => {
                 src={imagePasswordUnlocked.has(selectedItem.id) ? (selectedItem.originalImage || selectedItem.coverImage) : selectedItem.coverImage} 
                 alt={selectedItem.title} 
                 className="w-full h-full object-cover"
-                isSemiPublic={selectedItem.visibility === 'SEMI_PUBLIC' && !imagePasswordUnlocked.has(selectedItem.id)}
+                isSemiPublic={selectedItem.visibility === Visibility.SEMI_PUBLIC && !imagePasswordUnlocked.has(selectedItem.id)}
                 blurPercentage={selectedItem.blurPercentage}
               />
             </div>
@@ -240,21 +256,21 @@ const App: React.FC = () => {
                 </div>
 
                 <div className="space-y-6 text-base text-neutral-800 leading-relaxed">
-                  <p><strong className="text-black">{lang === 'zh' ? '设计说明：' : 'Description: '}</strong>{selectedItem.designInspiration}</p>
-                  {selectedItem.fabricSuggestions && <p><strong className="text-black">{lang === 'zh' ? '建议面料：' : 'Fabric: '}</strong>{selectedItem.fabricSuggestions}</p>}
+                  <p><strong className="text-black">{APP_TRANSLATIONS.designDescription[lang]}</strong>{selectedItem.designInspiration}</p>
+                  {selectedItem.fabricSuggestions && <p><strong className="text-black">{APP_TRANSLATIONS.fabricLabel[lang]}</strong>{selectedItem.fabricSuggestions}</p>}
                 </div>
 
                 <div className="bg-neutral-100 p-8 rounded-xl space-y-6">
                   <div className="flex justify-between items-center">
-                    <span className="font-bold text-lg">{lang === 'zh' ? '意向一口价' : 'Fixed Price'}</span>
+                    <span className="font-bold text-lg">{APP_TRANSLATIONS.fixedPrice[lang]}</span>
                     <span className="text-4xl font-black">￥{selectedItem.basePrice}</span>
                   </div>
-                  <p className="text-xs text-neutral-700 border-t pt-6">© 版权申明：该设计方案版权归设计师本人所有，购买仅获相应授权。</p>
+                  <p className="text-xs text-neutral-700 border-t pt-6">{APP_TRANSLATIONS.copyright[lang]}</p>
                 </div>
               </div>
 
               <button onClick={() => setShowContactPage(true)} className="w-full py-6 bg-black text-white font-bold text-lg uppercase tracking-widest mt-10 rounded-xl hover:bg-neutral-900 transition-all">
-                {lang === 'zh' ? '获取授权/联系设计' : 'Inquire for Rights'}
+                {APP_TRANSLATIONS.inquireBtn[lang]}
               </button>
             </div>
           </div>
